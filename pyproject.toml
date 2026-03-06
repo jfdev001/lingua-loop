@@ -9,3 +9,13 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.135.1",
 ]
+
+# TODO: verify these...
+[project.scripts]
+lingua-loop = "lingua_loop.main:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+lingua_loop = ["templates/*", "static/*"]
