@@ -24,3 +24,8 @@ Future work could include any of the following:
    to a flash card deck in addition to the context in which it occurred (e.g.,
    sentence or phrase). The user *should* write additional context to keep them
    actively engaged in the learning process. 
+
+# References
+
+[1] [Python FastAPI Tutorial (Part 1): Getting Started - Web App + REST API](https://www.youtube.com/watch?v=7AMjmCTumuo)
+
