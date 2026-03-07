@@ -25,6 +25,12 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+# TODO: This is API (i.e., what the backend acceptsand returns)
+# stuff and should live in another directory... see
+# e.g., forecast-in-a-box
+# pydantic base models needed here also...
+# TODO: put also Field here
+
 
 @app.get("/api/transcripts/load")
 def load_transcripts():

@@ -1,3 +1,8 @@
+# TODO: this is where you should put Column info... i.e., what the database
+# tables look like and the relationship between the tables ...
+# see /home/jf01/dev/FastAPIPhotoVideoSharing/app/db.py
+# NOTE: forecast-in-a-box puts database description (i.e.,Field etc.) into
+# the schemas... is this a reasonable approach??
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
