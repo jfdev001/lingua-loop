@@ -34,6 +34,7 @@ def index(request: Request):
 
 @app.get("/api/transcripts/load")
 def load_transcripts():
+    #
     pass
 
 
