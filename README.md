@@ -29,3 +29,4 @@ Future work could include any of the following:
 
 [1] [Python FastAPI Tutorial (Part 1): Getting Started - Web App + REST API](https://www.youtube.com/watch?v=7AMjmCTumuo)
 
+[2] [Learn Fast API With This ONE Project](https://www.youtube.com/watch?v=SR5NYCdzKkc)
