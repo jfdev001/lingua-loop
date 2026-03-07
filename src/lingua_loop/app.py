@@ -1,14 +1,20 @@
-from pathlib import Path
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI()
+from lingua_loop.config import STATIC_DIR, TEMPLATES_DIR
+from lingua_loop.db import transcript
 
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-TEMPLATES_DIR = BASE_DIR / "templates"
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await transcript.create_db_and_tables()
+    yield
+    await transcript.shutdown()
+
+app = FastAPI(lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
