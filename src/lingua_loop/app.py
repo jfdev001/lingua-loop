@@ -24,3 +24,18 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 @app.get("/", include_in_schema=False)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/api/transcripts/load")
+def load_transcripts():
+    pass
+
+
+@app.get("/api/transcripts/segment")
+def segment_transcripts():
+    pass
+
+
+@app.post("/api/score")
+def score():
+    pass
