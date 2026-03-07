@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.config import STATIC_DIR, TEMPLATES_DIR
 from lingua_loop.db import session
@@ -33,7 +35,9 @@ def index(request: Request):
 
 
 @app.get("/api/videos/load")
-def load_video():
+def load_video(
+        video_id: str,
+        session: AsyncSession = Depends(session.get_async_session)):
     pass
 
 
