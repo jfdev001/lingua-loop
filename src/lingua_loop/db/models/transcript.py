@@ -1,20 +1,14 @@
 # TODO: this is where you should put Column info... i.e., what the database
 # tables look like and the relationship between the tables ...
 # see /home/jf01/dev/FastAPIPhotoVideoSharing/app/db.py
-# NOTE: forecast-in-a-box puts database description (i.e.,Field etc.) into
-# the schemas... is this a reasonable approach??
-from collections.abc import AsyncGenerator
+# NOTE: forecast-in-a-box puts database description (i.e., Column etc.) into
+# the schemas... is this a reasonable approach??... yes but really Field should
+# go into API related stuff since schemas defines what API acceps and returns..
+# not necessarily what the Database (directly) receives
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, relationship
-
-from lingua_loop.schemas import transcript
-
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./transcripts.db"
-async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
-async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
@@ -51,17 +45,3 @@ class Segment(Base):
     text = Column(Text)
 
     transcript = relationship("Transcript", back_populates="segments")
-
-
-async def create_db_and_tables():
-    async with async_engine.begin() as conn:
-        await conn.run_sync(transcript.Base.metadata.create_all)
-
-
-async def shutdown():
-    await async_engine.dispose()
-
-
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
