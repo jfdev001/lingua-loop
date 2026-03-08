@@ -33,4 +33,4 @@ Future work could include any of the following:
 
 [3] [Anatomy of a Scalable Python Project (FastAPI)](https://www.youtube.com/watch?v=Af6Zr0tNNdE)
 
-[4] [Developing and Testing an Asynchronous API with FastAPI and Pytest](https://testdriven.io/blog/fastapi-crud/)
+[4] [Developing and Testing an Asynchronous API with FastAPI and Pytest](https://testdriven.io/blog/fastapi-crud/) & [github.com/fastapi-crud-async](https://github.com/testdrivenio/fastapi-crud-async)

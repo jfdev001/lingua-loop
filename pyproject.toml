@@ -26,4 +26,5 @@ lingua_loop = ["templates/*", "static/*"]
 dev = [
     "lingua-loop",
     "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
 ]

@@ -34,7 +34,7 @@ def index():
 
 
 @app.get("/api/video/load/{video_id}", response_model=VideoRead)
-def load_video(
+async def load_video(
         video_id: str,
         session: AsyncSession = Depends(session.get_async_session)):
     """"""
@@ -42,7 +42,7 @@ def load_video(
 
 
 @app.post("/api/score", response_model=ScoreResponse)
-def score(
+async def score(
         request: ScoreRequest,
         session: AsyncSession = Depends(session.get_async_session)):
     """on submit then a score can be output
