@@ -30,7 +30,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def load_video(video_id: str, session: AsyncSession) -> VideoRead:
-    return VideoRead(id="crud video", title="crud title")
+    """ 
+
+    """
+    id: str = video_id
+    title: str = ""
+    # TODO:
+    # check DB for video --> DB returns a model object
+    # if no transcript fetch using transcript api then populate db with transcript info
+    # return a schemas object info to frontend
+    return VideoRead(id=id, title=title)
 
 
 async def compute_score(request: ScoreRequest, session: AsyncSession) -> ScoreResponse:

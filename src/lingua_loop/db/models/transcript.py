@@ -1,12 +1,11 @@
-# TODO: this is where you should put Column info... i.e., what the database
-# tables look like and the relationship between the tables ...
-# see /home/jf01/dev/FastAPIPhotoVideoSharing/app/db.py
-# NOTE: forecast-in-a-box puts database description (i.e., Column etc.) into
+# NOTE: forecast-in-a-box puts database models (i.e., Column etc.) into
 # the schemas... is this a reasonable approach??... yes but really Field should
 # go into API related stuff since schemas defines what API acceps and returns..
 # not necessarily what the Database (directly) receives
-from datetime import datetime
+from datetime import datetime, timezone
+from enum import Enum
 
+from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -19,19 +18,24 @@ class Video(Base):
     __tablename__ = "videos"
     id = Column(String, primary_key=True)
     title = Column(String)
-
-    transcripts = relationship("Transcript", back_populates="video")
+    transcript = relationship(
+        "Transcript", back_populates="video", uselist=False)
 
 
 class Transcript(Base):
     __tablename__ = "transcripts"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    video_id = Column(String, ForeignKey("videos.id"))
-    type = Column(String, default="official")  # official, auto, user
-    language = Column(String, default="de")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    video_id = Column(String, ForeignKey("videos.id"), unique=True)
+    language = Column(String)
 
-    video = relationship("Video", back_populates="transcripts")
+    class Type(str, Enum):
+        official = "official"
+        auto = "auto"
+    type = Column(SqlEnum(Type))
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    video = relationship("Video", back_populates="transcript")
     segments = relationship(
         "Segment", back_populates="transcript", cascade="all, delete-orphan")
 

@@ -1,12 +1,10 @@
 from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession, async_sessionmaker, create_async_engine)
 from sqlalchemy.orm import DeclarativeBase
 
-from lingua_loop.schemas import transcript
-
-# TODO: this should ideally be an environment variable since you may
-# need it also for testing???
+# TODO: This should be an environment variable probably
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./transcripts.db"
 async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)

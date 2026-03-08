@@ -20,25 +20,9 @@ class BaseReadModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SegmentRead(BaseReadModel):
-    start: float
-    duration: float
-    text: str
-
-
-class TranscriptRead(BaseReadModel):
-    id: int
-    type: str
-    language: str
-    segments: list[SegmentRead]
-
-
 class VideoRead(BaseReadModel):
     id: str
     title: str
-    # transcripts: TranscriptRead # TODO:
-
-# TODO: need to have ScoreRequest and ScoreResponse??
 
 
 class ScoreRequest(BaseModel):
