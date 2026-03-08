@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from lingua_loop.app import app
+from lingua_loop.main import app
 
 
 @pytest.fixture(scope="module")
