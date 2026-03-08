@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.config import STATIC_DIR, TEMPLATES_DIR
 from lingua_loop.db import session
+from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
 
 
 @asynccontextmanager
@@ -32,31 +33,44 @@ def index():
 # https://fastapi.tiangolo.com/reference/apirouter/
 
 
-@app.get("/api/video/load")
+@app.get("/api/video/load/{video_id}", response_model=VideoRead)
 def load_video(
         video_id: str,
         session: AsyncSession = Depends(session.get_async_session)):
-    pass
+    """"""
+    return VideoRead(id=video_id, title="dummy title")
 
 
-@app.get("/api/transcript/load")
-def load_transcripts(
-        video_id: str,
-        session: AsyncSession = Depends(session.get_async_session)):
-    """Don't do this until the user wants to score..."""
-    #
-    pass
+# @app.get("/api/transcript/load")
+# def load_transcripts(
+#         video_id: str,
+#         session: AsyncSession = Depends(session.get_async_session)):
+#     """Don't do this until the user wants to score..."""
+#     #
+#     pass
+#
+#
+# @app.get("/api/transcript/segment")
+# def segment_transcripts(
+#         video_id: str,
+#         session: AsyncSession = Depends(session.get_async_session)):
+#     """ """
+#     pass
 
 
-@app.get("/api/transcript/segment")
-def segment_transcripts(
-        video_id: str,
-        session: AsyncSession = Depends(session.get_async_session)):
-    """ """
-    pass
+@app.post("/api/score", response_model=ScoreResponse)
+def score(request: ScoreRequest):
+    """on submit then a score can be output
 
+    Should query the transcript at this point since user doesn't need it 
+    unless they wish to transcribe...
 
-@app.post("/api/score")
-def score():
-    """on submit then a score can be output"""
-    pass
+    Should also send the start time information of the youtube video?? or 
+    should limit start times only to those corresponding to segments in the 
+    actually transcripts... to do that... the load_video DOES need to have
+    transcripts available to it to 
+    """
+    # TODO: use the video id and segment id to get the corresponding
+    # segment of the transcript from the database with the exact text...
+    # note that it could be a list of segment ids!!
+    return ScoreResponse(score=0.0, expected_text="expected transcription")

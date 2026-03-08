@@ -10,7 +10,9 @@
 # if needed... whatever... don't worry about this for now...
 
 # In either case... the typical approach is to put Field stuff into schemas dir:w
-# NAMING should be CRUD based
+# NAMING should be CRUD based... you could name the `Read` to Response since
+# at the moment yo udon't have any other crud operations... but you might
+# expand them...
 from pydantic import BaseModel, ConfigDict
 
 
@@ -34,4 +36,18 @@ class TranscriptRead(BaseReadModel):
 class VideoRead(BaseReadModel):
     id: str
     title: str
-    transcripts: list[TranscriptRead] = []
+    # transcripts: TranscriptRead # TODO:
+
+# TODO: need to have ScoreRequest and ScoreResponse??
+
+
+class ScoreRequest(BaseModel):
+    video_id: str
+    segment_id: int  # TODO: could be list here for scoring multiple segments
+    user_text: str
+
+
+class ScoreResponse(BaseModel):
+    score: float
+    expected_text: str
+    # highlights: list[str] # TODO: add this to emphasize what got missed
