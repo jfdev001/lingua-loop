@@ -32,3 +32,5 @@ Future work could include any of the following:
 [2] [Learn Fast API With This ONE Project](https://www.youtube.com/watch?v=SR5NYCdzKkc)
 
 [3] [Anatomy of a Scalable Python Project (FastAPI)](https://www.youtube.com/watch?v=Af6Zr0tNNdE)
+
+[4] [Developing and Testing an Asynchronous API with FastAPI and Pytest](https://testdriven.io/blog/fastapi-crud/)
