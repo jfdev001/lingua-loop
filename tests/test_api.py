@@ -7,5 +7,5 @@ def test_load_video(test_api):
     assert False
 
 
-def test_score(test_api):
+def test_compute_score(test_api):
     assert False

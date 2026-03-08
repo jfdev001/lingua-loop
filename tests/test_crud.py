@@ -9,5 +9,5 @@ def test_load_video(test_crud):
     assert False
 
 
-def test_score(test_crud):
+def test_compute_score(test_crud):
     assert False

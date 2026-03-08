@@ -25,3 +25,13 @@ async def get_weather(
     logger.info(f"Fetched weather: {weather}")
     return weather
 """
+from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+async def load_video(video_id: str, session: AsyncSession) -> VideoRead:
+    return VideoRead(id="crud video", title="crud title")
+
+
+async def compute_score(request: ScoreRequest, session: AsyncSession) -> ScoreResponse:
+    return ScoreResponse(score=0.0, expected_text="crud expected")
