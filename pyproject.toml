@@ -25,4 +25,5 @@ lingua_loop = ["templates/*", "static/*"]
 [dependency-groups]
 dev = [
     "lingua-loop",
+    "pytest>=9.0.2",
 ]

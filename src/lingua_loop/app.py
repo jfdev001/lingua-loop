@@ -41,29 +41,11 @@ def load_video(
     return VideoRead(id=video_id, title="dummy title")
 
 
-# @app.get("/api/transcript/load")
-# def load_transcripts(
-#         video_id: str,
-#         session: AsyncSession = Depends(session.get_async_session)):
-#     """Don't do this until the user wants to score..."""
-#     #
-#     pass
-#
-#
-# @app.get("/api/transcript/segment")
-# def segment_transcripts(
-#         video_id: str,
-#         session: AsyncSession = Depends(session.get_async_session)):
-#     """ """
-#     pass
-
-
 @app.post("/api/score", response_model=ScoreResponse)
-def score(request: ScoreRequest):
+def score(
+        request: ScoreRequest,
+        session: AsyncSession = Depends(session.get_async_session)):
     """on submit then a score can be output
-
-    Should query the transcript at this point since user doesn't need it 
-    unless they wish to transcribe...
 
     Should also send the start time information of the youtube video?? or 
     should limit start times only to those corresponding to segments in the 
@@ -71,6 +53,8 @@ def score(request: ScoreRequest):
     transcripts available to it to 
     """
     # TODO: use the video id and segment id to get the corresponding
+    # TODO: depends on video id so needs this from the frontend and it can't
+    # be null.... also gets
     # segment of the transcript from the database with the exact text...
     # note that it could be a list of segment ids!!
     return ScoreResponse(score=0.0, expected_text="expected transcription")
