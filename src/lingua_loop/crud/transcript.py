@@ -1,5 +1,8 @@
 """CRUD operations do not have Depends(...)... and they are called BY the API
 
+NOTE: This file does also technically contain service logic... but this 
+is acceptable since 
+
 E.g.,
 
 # @file crud/weathers.py
@@ -25,21 +28,75 @@ async def get_weather(
     logger.info(f"Fetched weather: {weather}")
     return weather
 """
-from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
+from lingua_loop.db.models.transcript import Video, Transcript, Segment
 
-async def load_video(video_id: str, session: AsyncSession) -> VideoRead:
-    """ 
 
+async def fetch_transcript(video_id) -> dict:
+    return {}
+
+
+async def load_video(video_id: str, session: AsyncSession):
     """
-    id: str = video_id
-    title: str = ""
-    # TODO:
-    # check DB for video --> DB returns a model object
-    # if no transcript fetch using transcript api then populate db with transcript info
-    # return a schemas object info to frontend
-    return VideoRead(id=id, title=title)
+    Load video from DB. If not present, fetch transcript and store it.
+    """
+
+    # -------------------------
+    # check DB
+    # -------------------------
+
+    query = select(Video).where(Video.id == video_id)
+    result = await session.execute(query)
+    return
+    video: Video | None = result.scalar_one_or_none()
+    if video:
+        return video
+
+    # -------------------------
+    # fetch transcript externally
+    # -------------------------
+
+    transcript_data = await fetch_transcript(video_id)
+
+    # -------------------------
+    # create DB objects
+    # -------------------------
+
+    video = Video(
+        id=video_id,
+        title=transcript_data["title"]
+    )
+
+    transcript = Transcript(
+        video=video,
+        language=transcript_data["language"],
+        type=Transcript.Type(transcript_data["type"]),
+    )
+
+    segments = [
+        Segment(
+            start=s["start"],
+            duration=s["duration"],
+            text=s["text"],
+        )
+        for s in transcript_data["segments"]
+    ]
+
+    transcript.segments = segments
+
+    session.add(video)
+
+    await session.commit()
+    await session.refresh(video)
+
+    # -------------------------
+    # return schema
+    # -------------------------
+
+    return video
 
 
 async def compute_score(request: ScoreRequest, session: AsyncSession) -> ScoreResponse:

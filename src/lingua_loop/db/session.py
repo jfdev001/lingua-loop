@@ -4,14 +4,14 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession, async_sessionmaker, create_async_engine)
 from sqlalchemy.orm import DeclarativeBase
 
+from lingua_loop.config import DATABASE_PATH
+from lingua_loop.db.models.transcript import Base
+
 # TODO: This should be an environment variable probably
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./transcripts.db"
+# NOTE: will this break due to relative paths and/or OS paths??
+SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///{DATABASE_PATH}"
 async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 async def create_db_and_tables():
