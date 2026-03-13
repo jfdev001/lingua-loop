@@ -1,7 +1,7 @@
 """CRUD operations do not have Depends(...)... and they are called BY the API
 
 NOTE: This file does also technically contain service logic... but this 
-is acceptable since 
+is acceptable given how small the app is at this point.
 
 E.g.,
 
@@ -50,8 +50,8 @@ async def load_video(video_id: str, session: AsyncSession):
 
     query = select(Video).where(Video.id == video_id)
     result = await session.execute(query)
-    return
     video: Video | None = result.scalar_one_or_none()
+    return video  # TODO: fix this
     if video:
         return video
 

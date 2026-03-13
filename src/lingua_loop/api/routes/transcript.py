@@ -15,6 +15,7 @@ async def load_video(
         session: AsyncSession = Depends(session.get_async_session)):
     """"""
     video = await crud_transcript.load_video(video_id=video_id, session=session)
+    video = VideoRead(id=video_id, title="dummy")  # TODO: filler
     return video
 
 
