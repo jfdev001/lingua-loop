@@ -1,7 +1,9 @@
 # NOTE: forecast-in-a-box puts database models (i.e., Column etc.) into
 # the schemas... is this a reasonable approach??... yes but really Field should
 # go into API related stuff since schemas defines what API acceps and returns..
-# not necessarily what the Database (directly) receives
+# not necessarily what the Database (directly) receives...
+# Comparatively... netflix/dispatch just has a single dir for some logic
+# and puts models.py in defining both database models and schemas (API)
 from datetime import datetime, timezone
 from enum import Enum
 
