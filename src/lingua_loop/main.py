@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from lingua_loop.api.routes import transcript
+from lingua_loop.api.routers import transcript
 from lingua_loop.config import STATIC_DIR, TEMPLATES_DIR
 from lingua_loop.db import session
 from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
