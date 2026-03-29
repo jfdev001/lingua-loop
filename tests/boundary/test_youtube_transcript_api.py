@@ -8,8 +8,3 @@ def test_transcript(transcript: FetchedTranscript):
     # for snippet in snippets:
     #     print()
     assert False
-
-
-@pytest.mark.parametrize("a", [1, 2])
-def test_a(a):
-    print(a)
