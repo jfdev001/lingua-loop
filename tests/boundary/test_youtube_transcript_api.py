@@ -1,5 +1,15 @@
-import youtube_transcript_api
+from youtube_transcript_api import FetchedTranscript
+import pytest
 
 
-def test_youtube_transcript_api():
+@pytest.mark.boundary
+def test_transcript(transcript: FetchedTranscript):
+    # snippets = transcript.snippets
+    # for snippet in snippets:
+    #     print()
     assert False
+
+
+@pytest.mark.parametrize("a", [1, 2])
+def test_a(a):
+    print(a)

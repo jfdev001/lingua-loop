@@ -22,6 +22,12 @@ where = ["src"]
 [tool.setuptools.package-data]
 lingua_loop = ["templates/*", "static/*"]
 
+[tool.pytest.ini_options]
+strict_markers = true
+markers = [
+    "boundary: mark test as boundary (aka 3rd party lib)"
+]
+
 [dependency-groups]
 dev = [
     "hypothesis>=6.151.10",
