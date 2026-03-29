@@ -4,4 +4,4 @@ from lingua_loop.config import ENV_UNIT_TEST, ENV_INTEGRATION_TEST, TEST_ON
 environ[ENV_UNIT_TEST] = TEST_ON
 
 if environ[ENV_INTEGRATION_TEST] == TEST_ON:
-    exit("Integration and unit tests cannot run at same time due to database")
+    exit("integration and unit tests cannot run at same time due to database")
