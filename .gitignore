@@ -6,8 +6,12 @@ dist/
 wheels/
 *.egg-info
 
-# Virtual environments
+# pkg
 .venv
+uv.lock
+
+# testing
+**/.hypothesis/*
 
 # Environment files
 .envrc

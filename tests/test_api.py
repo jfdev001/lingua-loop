@@ -7,10 +7,11 @@ since it should ideally be used also in the comptue score (i.e., knowledge
 of the expected transcripts is needed...)
 """
 
+# TODO:
 
-def test_load_video(test_api):
-    assert False
-
-
-def test_compute_score(test_api):
-    assert False
+# def test_load_video(test_api):
+#     assert False
+#
+#
+# def test_compute_score(test_api):
+#     assert False

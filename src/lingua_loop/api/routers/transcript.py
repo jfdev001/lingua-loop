@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.db import session
-import lingua_loop.crud.transcript as crud_transcript
-from lingua_loop.schemas.transcript import ScoreRequest, ScoreResponse, VideoRead
+import lingua_loop.service.transcript
+from lingua_loop.models.transcript import ScoreRequest, ScoreResponse, VideoRead
 
 router = APIRouter()  # NOTE:  lifespan isn't needed here...
 
@@ -14,7 +14,8 @@ async def load_video(
         video_id: str,
         session: AsyncSession = Depends(session.get_async_session)):
     """"""
-    video = await crud_transcript.load_video(video_id=video_id, session=session)
+    video = await lingua_loop.service.transcript.load_video(
+        video_id=video_id, session=session)
     video = VideoRead(id=video_id, title="dummy")  # TODO: filler
     return video
 
