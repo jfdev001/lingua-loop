@@ -27,14 +27,22 @@ Future work could include any of the following:
 
 # References
 
-[1] [Python FastAPI Tutorial (Part 1): Getting Started - Web App + REST API](https://www.youtube.com/watch?v=7AMjmCTumuo)
+[1] [Python FastAPI Tutorial (Part 1): Getting Started - Web App + REST
+API](https://www.youtube.com/watch?v=7AMjmCTumuo)
 
-[2] [Learn Fast API With This ONE Project](https://www.youtube.com/watch?v=SR5NYCdzKkc)
+[2] [Learn Fast API With This ONE
+Project](https://www.youtube.com/watch?v=SR5NYCdzKkc)
 
-[3] [Anatomy of a Scalable Python Project (FastAPI)](https://www.youtube.com/watch?v=Af6Zr0tNNdE)
+[3] [Anatomy of a Scalable Python Project
+(FastAPI)](https://www.youtube.com/watch?v=Af6Zr0tNNdE)
 
-[4] [Developing and Testing an Asynchronous API with FastAPI and Pytest](https://testdriven.io/blog/fastapi-crud/) & [github.com/fastapi-crud-async](https://github.com/testdrivenio/fastapi-crud-async)
+[4] [Developing and Testing an Asynchronous API with FastAPI and
+Pytest](https://testdriven.io/blog/fastapi-crud/) &
+[github.com/fastapi-crud-async](https://github.com/testdrivenio/fastapi-crud-async)
 
 [5] [Netflix/dispatch](https://github.com/Netflix/dispatch)
 
 [6] [polarsource/polar](https://github.com/polarsource/polar)
+
+[7] [FastAPI: Modern Web Development (Lubanovic
+2024)](https://www.oreilly.com/library/view/fastapi/9781098135492/)
