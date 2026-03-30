@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 from lingua_loop.config import DATABASE_PATH
 from lingua_loop.config import DB_DRIVER
-from lingua_loop.db.models.transcript import Base
+from lingua_loop.db.models import Base
 
 sqlalchemy_database_url = f"{DB_DRIVER}:///{DATABASE_PATH}"
 async_engine = create_async_engine(sqlalchemy_database_url)

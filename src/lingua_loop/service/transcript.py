@@ -32,9 +32,9 @@ async def get_weather(
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.db.models.transcript import Segment
-from lingua_loop.db.models.transcript import Transcript
-from lingua_loop.db.models.transcript import Video
+from lingua_loop.db.models import Segment
+from lingua_loop.db.models import Transcript
+from lingua_loop.db.models import Video
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
 from lingua_loop.schemas.transcript import VideoRead
