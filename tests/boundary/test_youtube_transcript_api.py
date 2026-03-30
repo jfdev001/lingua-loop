@@ -4,7 +4,10 @@ import pytest
 
 @pytest.mark.slow
 def test_transcript(transcript: FetchedTranscript):
-    # snippets = transcript.snippets
-    # for snippet in snippets:
-    #     print()
-    assert False
+    snippets = transcript.snippets
+    assert isinstance(snippets, list)
+
+    snippet = snippets[0]
+    assert isinstance(snippet.duration, float)
+    assert isinstance(snippet.start, float)
+    assert isinstance(snippet.text, str)

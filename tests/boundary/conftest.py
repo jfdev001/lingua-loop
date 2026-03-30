@@ -10,7 +10,6 @@ def ytt_api():
 
 @pytest.fixture(scope="session")
 def transcript(ytt_api: YouTubeTranscriptApi):
-    print("transcript fixture!")
     tagesschau_vid_official = "_RoFnUnT060"
     tagesschau_transcripts = ytt_api.fetch(tagesschau_vid_official,
                                            languages=[SupportedLanguages.GERMAN])
