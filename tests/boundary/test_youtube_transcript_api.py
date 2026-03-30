@@ -1,5 +1,5 @@
-from youtube_transcript_api import FetchedTranscript
 import pytest
+from youtube_transcript_api import FetchedTranscript
 
 
 @pytest.mark.slow

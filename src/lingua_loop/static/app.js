@@ -1,4 +1,4 @@
-// TODO: 
+// TODO:
 const appState = {
     videoId: null,
     segments: [],
@@ -15,7 +15,7 @@ function loadVideo() {
 
 function submitSegment() {
     // TODO: should GET transcripts (based on segment???)
-    // TODO: should POST the score 
+    // TODO: should POST the score
     console.log("submit segment");
 }
 
@@ -124,4 +124,3 @@ async function submitSegment() {
     }
 }
  * */
-

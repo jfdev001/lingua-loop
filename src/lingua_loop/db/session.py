@@ -1,11 +1,13 @@
 from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession, async_sessionmaker, create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from lingua_loop.config import DATABASE_PATH, DB_DRIVER
-from lingua_loop.db.schemas.transcript import Base
+from lingua_loop.config import DATABASE_PATH
+from lingua_loop.config import DB_DRIVER
+from lingua_loop.db.models.transcript import Base
 
 sqlalchemy_database_url = f"{DB_DRIVER}:///{DATABASE_PATH}"
 async_engine = create_async_engine(sqlalchemy_database_url)

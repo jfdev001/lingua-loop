@@ -1,1 +1,2 @@
-def test_service(): assert False
+def test_service():
+    assert False

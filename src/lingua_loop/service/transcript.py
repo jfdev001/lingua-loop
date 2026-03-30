@@ -1,6 +1,6 @@
 """CRUD operations do not have Depends(...)... and they are called BY the API
 
-NOTE: This file does also technically contain service logic... but this 
+NOTE: This file does also technically contain service logic... but this
 is acceptable given how small the app is at this point.
 
 E.g.,
@@ -28,11 +28,16 @@ async def get_weather(
     logger.info(f"Fetched weather: {weather}")
     return weather
 """
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.models.transcript import ScoreRequest, ScoreResponse, VideoRead
-from lingua_loop.db.schemas.transcript import Video, Transcript, Segment
+from lingua_loop.db.models.transcript import Segment
+from lingua_loop.db.models.transcript import Transcript
+from lingua_loop.db.models.transcript import Video
+from lingua_loop.schemas.transcript import ScoreRequest
+from lingua_loop.schemas.transcript import ScoreResponse
+from lingua_loop.schemas.transcript import VideoRead
 
 
 async def fetch_transcript(video_id) -> dict:
@@ -65,10 +70,7 @@ async def load_video(video_id: str, session: AsyncSession):
     # create DB objects
     # -------------------------
 
-    video = Video(
-        id=video_id,
-        title=transcript_data["title"]
-    )
+    video = Video(id=video_id, title=transcript_data["title"])
 
     transcript = Transcript(
         video=video,
@@ -99,5 +101,7 @@ async def load_video(video_id: str, session: AsyncSession):
     return video
 
 
-async def compute_score(request: ScoreRequest, session: AsyncSession) -> ScoreResponse:
+async def compute_score(
+    request: ScoreRequest, session: AsyncSession
+) -> ScoreResponse:
     return ScoreResponse(score=0.0, expected_text="crud expected")
