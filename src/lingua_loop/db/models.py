@@ -24,7 +24,9 @@ class Video(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str]
 
-    transcripts = relationship(back_populates="video")
+    transcripts: Mapped[List["Transcript"]] = relationship(
+        back_populates="video"
+    )
 
 
 class Transcript(Base):
@@ -48,12 +50,12 @@ class Transcript(Base):
         SqlEnum(TranscriptType)
     )
 
-    created_at = mapped_column(
+    created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
 
-    video_id = mapped_column(ForeignKey("video.id"))
-    video = relationship(back_populates="transcripts")
+    video_id: Mapped[str] = mapped_column(ForeignKey("video.id"))
+    video: Mapped[Video] = relationship(back_populates="transcripts")
     segments: Mapped[List["Segment"]] = relationship(
         back_populates="transcript",
         cascade="all, delete-orphan",
@@ -68,5 +70,5 @@ class Segment(Base):
     duration: Mapped[float]
     text: Mapped[str]
 
-    transcript_id = mapped_column(ForeignKey("transcript.id"))
+    transcript_id: Mapped[int] = mapped_column(ForeignKey("transcript.id"))
     transcript: Mapped[Transcript] = relationship(back_populates="segments")

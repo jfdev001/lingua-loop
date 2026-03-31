@@ -1,5 +1,3 @@
-"""Database tests must use in memory dataset."""
-
 import pytest
 
 from tests.config import ENV_DATABASE_PATH
