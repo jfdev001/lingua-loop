@@ -1,6 +1,5 @@
 from os import environ
-
-from lingua_loop.config import BASE_DIR
+from pathlib import Path
 
 TEST_ON = "ON"
 TEST_OFF = "OFF"
@@ -14,6 +13,6 @@ DEFAULT_ENV_INTEGRATION_TEST = TEST_OFF
 environ[ENV_INTEGRATION_TEST] = DEFAULT_ENV_INTEGRATION_TEST
 
 IN_MEMORY = ":memory:?cache=shared"
-TEST_DIR = "tests"
+TEST_DIR = Path(__file__).resolve().parent
 TEST_DB = "test.db"
-TEST_DATABASE_PATH = str(BASE_DIR / TEST_DIR / TEST_DB)
+TEST_DATABASE_PATH = str(TEST_DIR / TEST_DB)
