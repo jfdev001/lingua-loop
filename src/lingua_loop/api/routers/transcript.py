@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import lingua_loop.service.transcript
+import lingua_loop.services.transcript
 from lingua_loop.db import session
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
@@ -16,7 +16,7 @@ async def load_video(
 ):
     """"""
     # TODO: service layer then needs to call DB
-    video = await lingua_loop.service.transcript.load_video(
+    video = await lingua_loop.services.transcript.load_video(
         video_id=video_id, session=session
     )
     # video = VideoRead(id=video_id, title="dummy")  # TODO: filler

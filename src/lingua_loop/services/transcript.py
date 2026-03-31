@@ -37,7 +37,6 @@ from lingua_loop.db.models import Transcript
 from lingua_loop.db.models import Video
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
-from lingua_loop.schemas.transcript import VideoRead
 
 
 async def fetch_transcript(video_id) -> dict:

@@ -1,2 +1,2 @@
 def test_service():
-    assert False
+    raise NotImplementedError

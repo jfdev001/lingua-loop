@@ -11,7 +11,7 @@ from lingua_loop.config import ENV_DATABASE_PATH
 from lingua_loop.config import SupportedLanguages
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from tests.config import TEST_DATABASE_PATH
+from tests.constants import TEST_DATABASE_PATH
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -61,8 +61,6 @@ async def test_seed_test_data(seeded_db: AsyncSession):
     assert len(videos) == 1
 
 
-#
-#
-# def test_integration():
-#     """TODO: should use schemathesis and hypothesis"""
-#     assert False
+def test_integration():
+    """TODO: should use schemathesis and hypothesis"""
+    raise NotImplementedError

@@ -11,7 +11,9 @@ from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
 from lingua_loop.db.transcript import load
 from lingua_loop.db.transcript import score
-from tests.config import IN_MEMORY
+from tests.constants import IN_MEMORY
+from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
+from tests.constants import TEST_VIDEO_ID
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -31,7 +33,7 @@ async def unit_db_session():
 async def seeded_db(unit_db_session: AsyncSession):
 
     transcript = Transcript(
-        video_id="tageschau",
+        video_id=TEST_VIDEO_ID,
         language=SupportedLanguages.ENGLISH,  # adjust if needed
         transcript_type=Transcript.TranscriptType.official,
     )
@@ -41,6 +43,7 @@ async def seeded_db(unit_db_session: AsyncSession):
         Segment(start=2.0, duration=2.0, text="this is a test"),
         Segment(start=4.0, duration=2.0, text="goodbye"),
     ]
+    assert len(segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
 
     transcript.segments.extend(segments)
 
@@ -58,17 +61,24 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_load(seeded_db: AsyncSession):
-    video_id = "something"  # TODO: place holder
-    load(video_id=video_id)  # TODO: this probably needs the db session right??
+async def test_load_transcript_in_db(seeded_db: AsyncSession):
+    load(video_id=TEST_VIDEO_ID, session=seeded_db)
+
+
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
+    tagesschau_20260330 = "KKC8HRkTzAY"
+    load(video_id=tagesschau_20260330, session=seeded_db)
 
 
 @pytest.mark.asyncio
 async def test_score(seeded_db: AsyncSession):
-    # TODO: place holder data...
-    segment_ids = [1, 2, 3]
-    user_text = "something"
-    video_id = "something"
+    segment_ids = range(N_SEGMENTS_IN_TEST_TRANSCRIPT)
+    user_text = "attempt at transcription here"
     score(
-        video_id=video_id, segment_ids=segment_ids, user_text=user_text
-    )  # TODO: probably needs db session???
+        video_id=TEST_VIDEO_ID,
+        segment_ids=segment_ids,
+        user_text=user_text,
+        session=seeded_db,
+    )
