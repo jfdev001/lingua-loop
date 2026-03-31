@@ -6,7 +6,6 @@ from typing import List
 from sqlalchemy import DateTime
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -19,27 +18,11 @@ class Base(DeclarativeBase):
     pass
 
 
-class Video(Base):
-    __tablename__ = "video"
-    id: Mapped[str] = mapped_column(primary_key=True)
-    title: Mapped[str]
-
-    transcripts: Mapped[List["Transcript"]] = relationship(
-        back_populates="video"
-    )
-
-
 class Transcript(Base):
+    """One transcript per video for now."""
+
     __tablename__ = "transcript"
-    __table_args__ = (
-        UniqueConstraint(
-            "video_id",
-            "language",
-            "transcript_type",
-            name="uq_transcript_per_video_language_transcript_type",
-        ),
-    )
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    video_id: Mapped[str] = mapped_column(primary_key=True)
     language: Mapped[SupportedLanguages] = mapped_column(
         SqlEnum(SupportedLanguages)
     )
@@ -56,8 +39,6 @@ class Transcript(Base):
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
 
-    video_id: Mapped[str] = mapped_column(ForeignKey("video.id"))
-    video: Mapped[Video] = relationship(back_populates="transcripts")
     segments: Mapped[List["Segment"]] = relationship(
         back_populates="transcript",
         cascade="all, delete-orphan",
@@ -72,5 +53,7 @@ class Segment(Base):
     duration: Mapped[float]
     text: Mapped[str]
 
-    transcript_id: Mapped[int] = mapped_column(ForeignKey("transcript.id"))
+    transcript_id: Mapped[int] = mapped_column(
+        ForeignKey("transcript.video_id")
+    )
     transcript: Mapped[Transcript] = relationship(back_populates="segments")
