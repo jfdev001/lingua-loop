@@ -13,7 +13,6 @@ from lingua_loop.db.models import Base
 
 DATABASE_PATH = getenv(ENV_DATABASE_PATH, DEFAULT_ENV_DATABASE_PATH)
 DB_DRIVER = getenv(ENV_DB_DRIVER, DEFAULT_ENV_DB_DRIVER)
-print(DATABASE_PATH)
 sqlalchemy_database_url = f"{DB_DRIVER}:///{DATABASE_PATH}"
 async_engine = create_async_engine(sqlalchemy_database_url)
 async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)
