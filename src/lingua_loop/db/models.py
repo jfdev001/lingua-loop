@@ -53,7 +53,7 @@ class Segment(Base):
     duration: Mapped[float]
     text: Mapped[str]
 
-    transcript_id: Mapped[int] = mapped_column(
+    transcript_id: Mapped[str] = mapped_column(
         ForeignKey("transcript.video_id")
     )
     transcript: Mapped[Transcript] = relationship(back_populates="segments")

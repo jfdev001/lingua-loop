@@ -5,12 +5,12 @@ import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lingua_loop.config import ENV_DATABASE_PATH
 from lingua_loop.config import SupportedLanguages
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
 from lingua_loop.db.transcript import load
 from lingua_loop.db.transcript import score
-from tests.config import ENV_DATABASE_PATH
 from tests.config import IN_MEMORY
 
 
