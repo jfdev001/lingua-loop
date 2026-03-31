@@ -1,6 +1,6 @@
-def load(vid):
+def load(video_id):
     raise NotImplementedError
 
 
-def score(vid, segment_ids, user_text):
+def score(video_id, segment_ids, user_text):
     raise NotImplementedError

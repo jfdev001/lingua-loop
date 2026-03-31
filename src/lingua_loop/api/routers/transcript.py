@@ -16,6 +16,7 @@ async def load_video(
     video_id: str, session: AsyncSession = Depends(session.get_async_session)
 ):
     """"""
+    # TODO: service layer then needs to call DB
     video = await lingua_loop.service.transcript.load_video(
         video_id=video_id, session=session
     )

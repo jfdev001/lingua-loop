@@ -54,6 +54,7 @@ async def load_video(video_id: str, session: AsyncSession):
     # -------------------------
 
     query = select(Video).where(Video.id == video_id)
+    # TODO: this belongs in the DB section, not in the service section...
     result = await session.execute(query)
     video: Video | None = result.scalar_one_or_none()
     return video  # TODO: fix this

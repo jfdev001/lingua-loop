@@ -8,5 +8,7 @@ from tests.config import TEST_ON
 
 environ[ENV_UNIT_TEST] = TEST_ON
 
-if environ[ENV_INTEGRATION_TEST] == TEST_ON:
-    exit("integration and unit tests cannot run at same time due to database")
+# TODO: you can remove this... just put the fixtures for the databases
+# in the module scope of integration/... and unit/db/...
+# if environ[ENV_INTEGRATION_TEST] == TEST_ON:
+#     exit("integration and unit tests cannot run at same time due to database")

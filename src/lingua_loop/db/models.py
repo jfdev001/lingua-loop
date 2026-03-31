@@ -31,11 +31,13 @@ class Video(Base):
 
 class Transcript(Base):
     __tablename__ = "transcript"
-    __table_args__ = UniqueConstraint(
-        "video_id",
-        "language",
-        "transcript_type",
-        name="uq_transcript_per_video_language_transcript_type",
+    __table_args__ = (
+        UniqueConstraint(
+            "video_id",
+            "language",
+            "transcript_type",
+            name="uq_transcript_per_video_language_transcript_type",
+        ),
     )
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     language: Mapped[SupportedLanguages] = mapped_column(
