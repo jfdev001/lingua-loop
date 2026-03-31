@@ -74,7 +74,7 @@ async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_score(seeded_db: AsyncSession):
-    segment_ids = range(N_SEGMENTS_IN_TEST_TRANSCRIPT)
+    segment_ids = list(range(N_SEGMENTS_IN_TEST_TRANSCRIPT))
     user_text = "attempt at transcription here"
     score(
         video_id=TEST_VIDEO_ID,
