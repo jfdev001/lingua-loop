@@ -23,3 +23,7 @@ uv.lock
 # IDE
 *.swp
 *.swo
+.nvim.lua
+
+# dirs
+tmp

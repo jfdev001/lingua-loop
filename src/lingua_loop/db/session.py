@@ -1,12 +1,21 @@
 from collections.abc import AsyncGenerator
+from os import getenv
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession, async_sessionmaker, create_async_engine)
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from lingua_loop.config import DATABASE_PATH, DB_DRIVER
-from lingua_loop.db.schemas.transcript import Base
+from lingua_loop.constants import DEFAULT_ENV_DATABASE_PATH
+from lingua_loop.constants import DEFAULT_ENV_DB_DRIVER
+from lingua_loop.constants import ENV_DATABASE_PATH
+from lingua_loop.constants import ENV_DB_DRIVER
+from lingua_loop.db.models import Base
 
+DATABASE_PATH = getenv(ENV_DATABASE_PATH, DEFAULT_ENV_DATABASE_PATH)
+DB_DRIVER = getenv(ENV_DB_DRIVER, DEFAULT_ENV_DB_DRIVER)
+
+# TODO: this should be function to prevent module scope (causes issues
+# only in test env...)
 sqlalchemy_database_url = f"{DB_DRIVER}:///{DATABASE_PATH}"
 async_engine = create_async_engine(sqlalchemy_database_url)
 async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)

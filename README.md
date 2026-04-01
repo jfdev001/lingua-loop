@@ -23,7 +23,7 @@ Future work could include any of the following:
 2. Integrate Anki-style flash cards for selected words. A word should be added
    to a flash card deck in addition to the context in which it occurred (e.g.,
    sentence or phrase). The user *should* write additional context to keep them
-   actively engaged in the learning process. 
+   actively engaged in the learning process.
 
 # References
 
@@ -46,3 +46,7 @@ Pytest](https://testdriven.io/blog/fastapi-crud/) &
 
 [7] [FastAPI: Modern Web Development (Lubanovic
 2024)](https://www.oreilly.com/library/view/fastapi/9781098135492/)
+
+[8] [ecmwf/forecast-in-a-box](https://github.com/ecmwf/forecast-in-a-box)
+
+[9] [fastapi-docs: Testing Dependencies](https://fastapi.tiangolo.com/advanced/testing-dependencies/)

@@ -1,1 +1,2 @@
-def test_api(): assert False
+def test_api():
+    raise NotImplementedError
