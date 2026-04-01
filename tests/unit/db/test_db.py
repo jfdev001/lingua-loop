@@ -63,7 +63,7 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_load_transcript_in_db(seeded_db: AsyncSession):
     transcript = await load(video_id=TEST_VIDEO_ID, session=seeded_db)
-    assert transcript.video_id == TEST_VIDEO_ID
+    assert transcript and transcript.video_id == TEST_VIDEO_ID
 
 
 @pytest.mark.asyncio
@@ -71,17 +71,16 @@ async def test_load_transcript_in_db(seeded_db: AsyncSession):
 async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
     tagesschau_20260330 = "KKC8HRkTzAY"
     transcript = await load(video_id=tagesschau_20260330, session=seeded_db)
-    assert transcript is None
+    assert transcript and transcript.video_id == tagesschau_20260330
 
 
 @pytest.mark.asyncio
 async def test_score(seeded_db: AsyncSession):
     segment_ids = list(range(N_SEGMENTS_IN_TEST_TRANSCRIPT))
     user_text = "attempt at transcription here"
-    score_result, video_id, segments = await score(
+    segments = await score(
         video_id=TEST_VIDEO_ID,
         segment_ids=segment_ids,
-        user_text=user_text,
         session=seeded_db,
     )
-    assert video_id == TEST_VIDEO_ID
+    assert segments and len(segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT

@@ -1,4 +1,7 @@
 from youtube_transcript_api import FetchedTranscript
+from youtube_transcript_api import NoTranscriptFound
+from youtube_transcript_api import Transcript
+from youtube_transcript_api import TranscriptList
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from lingua_loop.integrations.youtube.types import SupportedLanguages
@@ -10,3 +13,18 @@ def fetch_transcript(
     video_id: str, language: SupportedLanguages
 ) -> FetchedTranscript:
     return ytt_api.fetch(video_id=video_id, languages=[language])
+
+
+def list_transcripts(video_id: str) -> TranscriptList:
+    return ytt_api.list(video_id)
+
+
+def find_transcript(
+    transcript_list: TranscriptList, language: SupportedLanguages
+) -> Transcript | None:
+    transcript: Transcript | None
+    try:
+        transcript = transcript_list.find_transcript(language_codes=[language])
+    except NoTranscriptFound:
+        transcript = None
+    return transcript
