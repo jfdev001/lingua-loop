@@ -16,10 +16,6 @@ def get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
     raise NotImplementedError
 
 
-def normalize(segments: list[Segment]) -> List[Segment]:
-    raise NotImplemented
-
-
 async def cache_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
 ) -> Transcript | None:
@@ -44,8 +40,7 @@ async def cache_transcript(
         )
 
         segments = get_segments(fetched_transcript=fetched_transcript)
-        normalized_segments = normalize(segments=segments)
-        transcript.segments.extend(normalized_segments)
+        transcript.segments.extend(segments)
 
         session.add(transcript)
         await session.commit()

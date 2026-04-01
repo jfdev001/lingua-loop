@@ -34,7 +34,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.db.models import Video
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
 
