@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.db.transcript import load
+from lingua_loop.db.transcript import get_transcript
 from lingua_loop.db.transcript import score
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from tests.constants import IN_MEMORY
@@ -63,7 +63,7 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_load_transcript_in_db(seeded_db: AsyncSession):
     german = SupportedLanguages.GERMAN
-    transcript = await load(
+    transcript = await get_transcript(
         video_id=TEST_VIDEO_ID, language=german, session=seeded_db
     )
     assert transcript and transcript.video_id == TEST_VIDEO_ID
@@ -74,10 +74,15 @@ async def test_load_transcript_in_db(seeded_db: AsyncSession):
 async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
     german = SupportedLanguages.GERMAN
     tagesschau_20260330 = "KKC8HRkTzAY"
-    transcript = await load(
+    n_segments_tagesschau_20260330 = 249
+    transcript = await get_transcript(
         video_id=tagesschau_20260330, language=german, session=seeded_db
     )
-    assert transcript and transcript.video_id == tagesschau_20260330
+    assert transcript and (
+        transcript.video_id == tagesschau_20260330
+        and n_segments_tagesschau_20260330
+        and transcript.transcript_type == Transcript.TranscriptType.official
+    )
 
 
 @pytest.mark.asyncio

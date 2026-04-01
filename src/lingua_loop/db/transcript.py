@@ -13,7 +13,15 @@ from lingua_loop.integrations.youtube.wrapper import list_transcripts
 
 
 def get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
-    raise NotImplementedError
+    segments: List[Segment] = []
+    snippets = fetched_transcript.snippets
+    for snippet in snippets:
+        start = snippet.start
+        duration = snippet.duration
+        text = snippet.text
+        segment = Segment(start=start, duration=duration, text=text)
+        segments.append(segment)
+    return segments
 
 
 async def cache_transcript(
@@ -48,7 +56,7 @@ async def cache_transcript(
     return transcript
 
 
-async def load(
+async def get_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
 ) -> Transcript | None:
     result = await session.execute(
