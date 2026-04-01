@@ -62,15 +62,21 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_load_transcript_in_db(seeded_db: AsyncSession):
-    transcript = await load(video_id=TEST_VIDEO_ID, session=seeded_db)
+    german = SupportedLanguages.GERMAN
+    transcript = await load(
+        video_id=TEST_VIDEO_ID, language=german, session=seeded_db
+    )
     assert transcript and transcript.video_id == TEST_VIDEO_ID
 
 
 @pytest.mark.asyncio
 @pytest.mark.slow
 async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
+    german = SupportedLanguages.GERMAN
     tagesschau_20260330 = "KKC8HRkTzAY"
-    transcript = await load(video_id=tagesschau_20260330, session=seeded_db)
+    transcript = await load(
+        video_id=tagesschau_20260330, language=german, session=seeded_db
+    )
     assert transcript and transcript.video_id == tagesschau_20260330
 
 

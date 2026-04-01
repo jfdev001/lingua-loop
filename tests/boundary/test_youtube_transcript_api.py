@@ -4,6 +4,7 @@ from youtube_transcript_api import TranscriptList
 
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.integrations.youtube.wrapper import fetch_transcript
+from lingua_loop.integrations.youtube.wrapper import find_transcript
 from tests.constants import TAGESSCHAU_VID_OFFICIAL
 
 

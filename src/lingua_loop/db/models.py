@@ -29,7 +29,7 @@ class Transcript(Base):
 
     class TranscriptType(str, Enum):
         official = "official"
-        auto = "auto"
+        generated = "generated"
 
     transcript_type: Mapped[TranscriptType] = mapped_column(
         SqlEnum(TranscriptType)
