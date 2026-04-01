@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
-from lingua_loop.config import SupportedLanguages
+from lingua_loop.integrations.youtube.types import SupportedLanguages
 
 
 class Base(DeclarativeBase):

@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from lingua_loop.config import DEFAULT_ENV_DATABASE_PATH
-from lingua_loop.config import DEFAULT_ENV_DB_DRIVER
-from lingua_loop.config import ENV_DATABASE_PATH
-from lingua_loop.config import ENV_DB_DRIVER
+from lingua_loop.constants import DEFAULT_ENV_DATABASE_PATH
+from lingua_loop.constants import DEFAULT_ENV_DB_DRIVER
+from lingua_loop.constants import ENV_DATABASE_PATH
+from lingua_loop.constants import ENV_DB_DRIVER
 from lingua_loop.db.models import Base
 
 DATABASE_PATH = getenv(ENV_DATABASE_PATH, DEFAULT_ENV_DATABASE_PATH)

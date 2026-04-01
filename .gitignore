@@ -24,3 +24,6 @@ uv.lock
 *.swp
 *.swo
 .nvim.lua
+
+# dirs
+tmp

@@ -6,8 +6,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from lingua_loop.api.routers import transcript
-from lingua_loop.config import STATIC_DIR
-from lingua_loop.config import TEMPLATES_DIR
+from lingua_loop.constants import STATIC_DIR
+from lingua_loop.constants import TEMPLATES_DIR
 from lingua_loop.db import session
 
 

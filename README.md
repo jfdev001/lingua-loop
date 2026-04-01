@@ -48,3 +48,5 @@ Pytest](https://testdriven.io/blog/fastapi-crud/) &
 2024)](https://www.oreilly.com/library/view/fastapi/9781098135492/)
 
 [8] [ecmwf/forecast-in-a-box](https://github.com/ecmwf/forecast-in-a-box)
+
+[9] [fastapi-docs: Testing Dependencies](https://fastapi.tiangolo.com/advanced/testing-dependencies/)

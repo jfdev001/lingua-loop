@@ -7,10 +7,10 @@ import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.config import ENV_DATABASE_PATH
-from lingua_loop.config import SupportedLanguages
+from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
+from lingua_loop.integrations.youtube.types import SupportedLanguages
 from tests.constants import TEST_DATABASE_PATH
 
 
