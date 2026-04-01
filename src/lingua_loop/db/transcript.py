@@ -58,7 +58,7 @@ async def cache_transcript(
     return transcript
 
 
-async def read_transcript(
+async def _read_transcript(
     video_id: str, session: AsyncSession
 ) -> Transcript | None:
     result = await session.execute(
@@ -71,7 +71,7 @@ async def read_transcript(
 async def read_or_create_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
 ) -> Transcript | None:
-    transcript = await read_transcript(video_id=video_id, session=session)
+    transcript = await _read_transcript(video_id=video_id, session=session)
     if not transcript:
         transcript = await cache_transcript(
             video_id=video_id, language=language, session=session
