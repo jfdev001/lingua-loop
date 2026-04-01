@@ -17,7 +17,7 @@ class TranscriptResponse(BaseModel):
 
 class ScoreRequest(BaseModel):
     video_id: str
-    segment_ids: list[int] = Field(min_length=1)
+    segment_ixs: list[int] = Field(min_length=1)
     user_text: str = Field(min_length=1)
 
 

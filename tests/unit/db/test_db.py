@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.db.transcript import get_transcript
-from lingua_loop.db.transcript import score
+from lingua_loop.db.transcript import read_or_create_transcript
+from lingua_loop.db.transcript import read_segments_by_video_and_ixs
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from tests.constants import IN_MEMORY
 from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
@@ -61,9 +61,9 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_load_transcript_in_db(seeded_db: AsyncSession):
+async def test_read_or_create_transcript_in_db(seeded_db: AsyncSession):
     german = SupportedLanguages.GERMAN
-    transcript = await get_transcript(
+    transcript = await read_or_create_transcript(
         video_id=TEST_VIDEO_ID, language=german, session=seeded_db
     )
     assert transcript and transcript.video_id == TEST_VIDEO_ID
@@ -71,11 +71,11 @@ async def test_load_transcript_in_db(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
+async def test_read_or_create_transcript_not_in_db(seeded_db: AsyncSession):
     german = SupportedLanguages.GERMAN
     tagesschau_20260330 = "KKC8HRkTzAY"
     n_segments_tagesschau_20260330 = 249
-    transcript = await get_transcript(
+    transcript = await read_or_create_transcript(
         video_id=tagesschau_20260330, language=german, session=seeded_db
     )
     assert transcript and (
@@ -86,12 +86,11 @@ async def test_load_transcript_not_in_db(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_score(seeded_db: AsyncSession):
-    segment_ids = list(range(N_SEGMENTS_IN_TEST_TRANSCRIPT))
-    user_text = "attempt at transcription here"
-    segments = await score(
+async def test_read_segments_by_video_and_ixs(seeded_db: AsyncSession):
+    segment_ixs = list(range(N_SEGMENTS_IN_TEST_TRANSCRIPT))
+    segments = await read_segments_by_video_and_ixs(
         video_id=TEST_VIDEO_ID,
-        segment_ids=segment_ids,
+        segment_ixs=segment_ixs,
         session=seeded_db,
     )
     assert segments and len(segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
