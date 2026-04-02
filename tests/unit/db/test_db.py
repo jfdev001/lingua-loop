@@ -9,7 +9,7 @@ from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
 from lingua_loop.db.transcript import read_or_create_transcript
-from lingua_loop.db.transcript import read_segments_by_video_and_ixs
+from lingua_loop.db.transcript import read_transcript_with_segments
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from tests.constants import IN_MEMORY
 from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
@@ -86,11 +86,10 @@ async def test_read_or_create_transcript_not_in_db(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_read_segments_by_video_and_ixs(seeded_db: AsyncSession):
-    segment_ixs = list(range(N_SEGMENTS_IN_TEST_TRANSCRIPT))
-    segments = await read_segments_by_video_and_ixs(
+async def test_read_transcript_with_segments(seeded_db: AsyncSession):
+    transcript = await read_transcript_with_segments(
         video_id=TEST_VIDEO_ID,
-        segment_ixs=segment_ixs,
         session=seeded_db,
     )
+    segments = transcript.segments
     assert segments and len(segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT

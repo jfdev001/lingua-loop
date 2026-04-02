@@ -62,7 +62,7 @@ NORMALIZE_TEST_CASES = (
 
 @pytest.mark.parametrize("text,language,normalized_text", NORMALIZE_TEST_CASES)
 def test_text_normalizer(text, language, normalized_text):
-    text_normalizer = text_normalizer_factory.create(language=language)
+    text_normalizer = text_normalizer_factory(language=language)
     assert text_normalizer.normalize(text=text) == normalized_text
 
 

@@ -14,7 +14,6 @@ class GenericNormalizer(TextNormalizer):
     """Default normalizer in case language supported but no specific impl"""
 
     def normalize(self, text: str) -> str:
-        # TODO: handle esset normalization ä -> ae, ü -> ue, ö -> oe, ß -> ss
         raise NotImplementedError
 
 
@@ -27,7 +26,7 @@ class GermanNormalizer(TextNormalizer):
 class TextNormalizerFactory:
     _languages = {SupportedLanguages.GERMAN: GermanNormalizer}
 
-    def create(self, language: SupportedLanguages) -> TextNormalizer:
+    def __call__(self, language: SupportedLanguages) -> TextNormalizer:
         normalizer_cls = self._languages.get(language, GenericNormalizer)
         return normalizer_cls()
 

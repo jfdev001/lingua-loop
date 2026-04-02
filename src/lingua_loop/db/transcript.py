@@ -14,7 +14,7 @@ from lingua_loop.integrations.youtube.wrapper import find_transcript
 from lingua_loop.integrations.youtube.wrapper import list_transcripts
 
 
-def get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
+def _get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
     segments: List[Segment] = []
     snippets = fetched_transcript.snippets
     for snippet in snippets:
@@ -26,7 +26,7 @@ def get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
     return segments
 
 
-async def cache_transcript(
+async def _create_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
 ) -> Transcript | None:
     transcript: Transcript | None = None
@@ -49,7 +49,7 @@ async def cache_transcript(
             transcript_type=transcript_type,
         )
 
-        segments = get_segments(fetched_transcript=fetched_transcript)
+        segments = _get_segments(fetched_transcript=fetched_transcript)
         transcript.segments.extend(segments)
 
         session.add(transcript)
@@ -73,29 +73,15 @@ async def read_or_create_transcript(
 ) -> Transcript | None:
     transcript = await _read_transcript(video_id=video_id, session=session)
     if not transcript:
-        transcript = await cache_transcript(
+        transcript = await _create_transcript(
             video_id=video_id, language=language, session=session
         )
     return transcript
 
 
-def is_monotonically_increasing(ixs: List[int]) -> bool:
-    assert len(ixs) >= 1
-    monotonically_increasing: bool = True
-    for ix in range(0, len(ixs) - 1):
-        cur = ixs[ix]
-        next_ = ixs[ix + 1]
-        if cur >= next_:
-            monotonically_increasing = False
-            break
-    return monotonically_increasing
-
-
-async def read_segments_by_video_and_ixs(
-    video_id: str, segment_ixs: List[int], session: AsyncSession
-) -> List[Segment]:
-    assert is_monotonically_increasing(segment_ixs)
-
+async def read_transcript_with_segments(
+    video_id: str, session: AsyncSession
+) -> Transcript:
     result = await session.execute(
         select(Transcript)
         .options(selectinload(Transcript.segments))
@@ -105,6 +91,4 @@ async def read_segments_by_video_and_ixs(
     if transcript is None:
         raise TranscriptNotFoundError(video_id=video_id)
 
-    segments = transcript.segments
-    segments_by_ixs: List[Segment] = [segments[ix] for ix in segment_ixs]
-    return segments_by_ixs
+    return transcript
