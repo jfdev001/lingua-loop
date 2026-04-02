@@ -46,20 +46,25 @@ def get_transcript_segments_by_ixs(
 
 async def compute_score(
     video_id: str, segment_ixs: list[int], user_text: str, session: AsyncSession
-):
+) -> float:
 
     transcript = await read_transcript_with_segments(
         video_id=video_id, session=session
     )
+
+    language = transcript.language
+    text_normalizer = text_normalizer_factory(language=language)
+
     segments_by_ixs = get_transcript_segments_by_ixs(
         transcript=transcript, segment_ixs=segment_ixs
     )
     segments_text = " ".join([segment.text for segment in segments_by_ixs])
-    language = transcript.language
-    text_normalizer = text_normalizer_factory(language=language)
+
     normalized_segments_text = text_normalizer.normalize(text=segments_text)
     normalized_user_text = text_normalizer.normalize(text=user_text)
+
     score = score_text(
         reference_text=normalized_segments_text, user_text=normalized_user_text
     )
+
     return score
