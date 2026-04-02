@@ -1,38 +1,79 @@
 from abc import ABC
 from abc import abstractmethod
-from typing import List
+from re import sub
+from typing import Literal
 
-from lingua_loop.db.models import Segment
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 
-
-def normalize(text: str, language: SupportedLanguages) -> List[Segment]:
-    """ """
-    if language == SupportedLanguages.GERMAN:
-        # TODO: handle esset normalization ä -> ae, ü -> ue, ö -> oe, ß -> ss
-        raise NotImplementedError
-    raise NotImplemented
-
-
-# TODO: better to take factory/abstract approach here for extending to
-# different langs
+NormalizationForm = Literal["NFC", "NFKC", "NFD", "NFKD"]
 
 
 class TextNormalizer(ABC):
+    """Normalizes text for comparison/scoring purposes.
+
+    The normalization is intentionally lossy and removes distinctions such as:
+    - (language-specific) accent variations
+    - case differences
+    - punctuation
+
+    As a result, texts like "Er hat gesagt" and "er hat gesagt"
+    are considered equivalent after normalization.
+    """
+
+    form: NormalizationForm = "NFKD"
+
+    def normalize(self, text: str) -> str:
+        text = self.normalize_accents(text)
+        text = self.normalize_case(text)
+        text = self.normalize_punctuation(text)
+        text = self.normalize_whitespace(text)
+        return text
+
     @abstractmethod
-    def normalize(self, text: str):
-        raise NotImplementedError
+    def normalize_accents(self, text: str) -> str:
+        """Replace accents (return text if no change)"""
+        pass
+
+    def normalize_case(self, text: str) -> str:
+        return text.lower()
+
+    def normalize_punctuation(self, text: str) -> str:
+        all_chars_except_words_and_single_spaces = r"[^\w\s]"
+        space = " "
+        return sub(
+            pattern=all_chars_except_words_and_single_spaces,
+            repl=space,
+            string=text,
+        )
+
+    def normalize_whitespace(self, text: str) -> str:
+        one_or_more_spaces = r"\s+"
+        space = " "
+        return sub(pattern=one_or_more_spaces, repl=space, string=text).strip()
 
 
 class GenericNormalizer(TextNormalizer):
-    """Default normalizer in case language supported but no specific impl"""
-
-    pass
+    def normalize_accents(self, text: str) -> str:
+        return text
 
 
 class GermanNormalizer(TextNormalizer):
-    pass
+    def normalize_accents(self, text: str) -> str:
+        text = (
+            text.replace("ß", "ss")
+            .replace("ä", "ae")
+            .replace("ö", "oe")
+            .replace("ü", "ue")
+        )
+        return text
 
 
 class TextNormalizerFactory:
-    pass
+    _languages = {SupportedLanguages.GERMAN: GermanNormalizer}
+
+    def __call__(self, language: SupportedLanguages) -> TextNormalizer:
+        normalizer_cls = self._languages.get(language, GenericNormalizer)
+        return normalizer_cls()
+
+
+text_normalizer_factory = TextNormalizerFactory()

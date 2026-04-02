@@ -1,106 +1,95 @@
-"""CRUD operations do not have Depends(...)... and they are called BY the API
+from difflib import SequenceMatcher
+from typing import List
 
-NOTE: This file does also technically contain service logic... but this
-is acceptable given how small the app is at this point.
-
-E.g.,
-
-# @file crud/weathers.py
-# https://github.com/ArjanCodes/examples/blob/b681c00b038a890d36faa6340a1885b7a6ea5433/2024/tuesday_tips/fastapi_custom_exceptions/skypulse/app/crud/weathers.py#L10
-async def get_weather(db_session: AsyncSession, weather_id: int) -> Weather:
-    weather = (
-        await db_session.scalars(
-            select(models.Weather).where(models.Weather.id == weather_id)
-        )
-    ).first()
-    if not weather:
-        raise EntityDoesNotExistError
-    return weather
-
-# @file api/weathers.py
-# https://github.com/ArjanCodes/examples/blob/main/2024/tuesday_tips/fastapi_custom_exceptions/skypulse/app/api/routes/weathers.py
-@router.get("/weather/{weather_id}", response_model=Weather)
-async def get_weather(
-    weather_id: int, db: AsyncSession = Depends(get_db_session)
-) -> Weather:
-    logger.info(f"Fetching weather with id: {weather_id}")
-    weather = await weathers.get_weather(db, weather_id)
-    logger.info(f"Fetched weather: {weather}")
-    return weather
-"""
-
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.schemas.transcript import ScoreRequest
-from lingua_loop.schemas.transcript import ScoreResponse
+from lingua_loop.db.transcript import read_or_create_transcript
+from lingua_loop.db.transcript import read_transcript_with_segments
+from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.services.text_normalization import text_normalizer_factory
 
 
-async def fetch_transcript(video_id) -> dict:
-    return {}
-
-
-async def load_video(video_id: str, session: AsyncSession):
-    """
-    Load video from DB. If not present, fetch transcript and store it.
-    """
-
-    # -------------------------
-    # check DB
-    # -------------------------
-
-    query = select(Video).where(Video.id == video_id)
-    # TODO: this belongs in the DB section, not in the service section...
-    result = await session.execute(query)
-    video: Video | None = result.scalar_one_or_none()
-    return video  # TODO: fix this
-    if video:
-        return video
-
-    # -------------------------
-    # fetch transcript externally
-    # -------------------------
-
-    transcript_data = await fetch_transcript(video_id)
-
-    # -------------------------
-    # create DB objects
-    # -------------------------
-
-    video = Video(id=video_id, title=transcript_data["title"])
-
-    transcript = Transcript(
-        video=video,
-        language=transcript_data["language"],
-        type=Transcript.Type(transcript_data["type"]),
+async def get_transcript(
+    video_id: str, language: SupportedLanguages, session: AsyncSession
+):
+    transcript = await read_or_create_transcript(
+        video_id=video_id, language=language, session=session
     )
+    return transcript
 
-    segments = [
-        Segment(
-            start=s["start"],
-            duration=s["duration"],
-            text=s["text"],
-        )
-        for s in transcript_data["segments"]
-    ]
 
-    transcript.segments = segments
+def score_text(reference_text: str, user_text: str):
+    """
+    TODO: At some point, you may want to give the user information about
+    word level mismatches so that they can see roughly what they missed...
+    the current approach just gives an overall score. It also performs
+    no weighting, so each word is worth as much as the previous...
+    """
+    ref_words = reference_text.split()
+    user_words = user_text.split()
 
-    session.add(video)
+    max_n_words = max(len(ref_words), len(user_words))
+    max_score = 1.0
+    if max_n_words == 0:  # handles no inputs
+        return max_score
 
-    await session.commit()
-    await session.refresh(video)
+    # zip truncates lists... therefore missing/extra words implicitly penalized
+    # via division by max_n_words
+    total = 0.0
+    elements_in_str_to_ignore = None
+    for ref_word, user_word in zip(ref_words, user_words):
+        ratio = SequenceMatcher(
+            elements_in_str_to_ignore, ref_word, user_word
+        ).ratio()
+        total += ratio
 
-    # -------------------------
-    # return schema
-    # -------------------------
+    return total / max_n_words
 
-    return video
+
+def is_monotonically_increasing(ixs: List[int]) -> bool:
+    assert len(ixs) >= 1
+    monotonically_increasing: bool = True
+    for ix in range(0, len(ixs) - 1):
+        cur = ixs[ix]
+        next_ = ixs[ix + 1]
+        if cur >= next_:
+            monotonically_increasing = False
+            break
+    return monotonically_increasing
+
+
+def get_transcript_segments_by_ixs(
+    transcript: Transcript, segment_ixs: List[int]
+) -> List[Segment]:
+    assert is_monotonically_increasing(segment_ixs)
+    segments = transcript.segments
+    segments = [segments[ix] for ix in segment_ixs]
+    return segments
 
 
 async def compute_score(
-    request: ScoreRequest, session: AsyncSession
-) -> ScoreResponse:
-    return ScoreResponse(score=0.0, expected_text="crud expected")
+    video_id: str, segment_ixs: list[int], user_text: str, session: AsyncSession
+) -> float:
+
+    transcript = await read_transcript_with_segments(
+        video_id=video_id, session=session
+    )
+
+    language = transcript.language
+    text_normalizer = text_normalizer_factory(language=language)
+
+    segments_by_ixs = get_transcript_segments_by_ixs(
+        transcript=transcript, segment_ixs=segment_ixs
+    )
+    segments_text = " ".join([segment.text for segment in segments_by_ixs])
+
+    normalized_segments_text = text_normalizer.normalize(text=segments_text)
+    normalized_user_text = text_normalizer.normalize(text=user_text)
+
+    score = score_text(
+        reference_text=normalized_segments_text, user_text=normalized_user_text
+    )
+
+    return score

@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -12,15 +14,15 @@ class Segment(BaseModel):
 class TranscriptResponse(BaseModel):
     video_id: str
     title: str
-    segments: list[Segment]
+    segments: List[Segment]
 
 
 class ScoreRequest(BaseModel):
     video_id: str
-    segment_ixs: list[int] = Field(min_length=1)
+    segment_ixs: List[int] = Field(min_length=1)
     user_text: str = Field(min_length=1)
 
 
 class ScoreResponse(BaseModel):
     score: float
-    segments: list[Segment]
+    segments: List[Segment]
