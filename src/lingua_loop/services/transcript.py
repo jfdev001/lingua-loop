@@ -1,3 +1,4 @@
+from difflib import SequenceMatcher
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +21,31 @@ async def get_transcript(
 
 
 def score_text(reference_text: str, user_text: str):
-    raise NotImplementedError
+    """
+    TODO: At some point, you may want to give the user information about
+    word level mismatches so that they can see roughly what they missed...
+    the current approach just gives an overall score. It also performs
+    no weighting, so each word is worth as much as the previous...
+    """
+    ref_words = reference_text.split()
+    user_words = user_text.split()
+
+    max_n_words = max(len(ref_words), len(user_words))
+    max_score = 1.0
+    if max_n_words == 0:  # handles no inputs
+        return max_score
+
+    # zip truncates lists... therefore missing/extra words implicitly penalized
+    # via division by max_n_words
+    total = 0.0
+    elements_in_str_to_ignore = None
+    for ref_word, user_word in zip(ref_words, user_words):
+        ratio = SequenceMatcher(
+            elements_in_str_to_ignore, ref_word, user_word
+        ).ratio()
+        total += ratio
+
+    return total / max_n_words
 
 
 def is_monotonically_increasing(ixs: List[int]) -> bool:

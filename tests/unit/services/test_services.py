@@ -1,5 +1,6 @@
 """Structural tests (i.e., with mocking of internals) for services layer."""
 
+from math import isclose
 from unittest.mock import AsyncMock
 
 import pytest
@@ -9,6 +10,7 @@ from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.services.text_normalization import text_normalizer_factory
 from lingua_loop.services.transcript import compute_score
 from lingua_loop.services.transcript import get_transcript
+from lingua_loop.services.transcript import score_text
 
 
 @pytest.mark.asyncio
@@ -49,8 +51,23 @@ async def test_get_transcript(mocker: MockerFixture):
     assert mock_transcript.language == language
 
 
-def test_score_text():
-    raise NotImplementedError
+SCORE_TEXT_TEST_CASES = (
+    ["i hate sand", "i hate sand", 1.00],
+    ["erklaerung", "erklarung", 0.947],
+    ["nailed it", "not really", 0.111],
+)
+
+
+@pytest.mark.parametrize(
+    "reference_text,user_text,reference_score", SCORE_TEXT_TEST_CASES
+)
+def test_score_text(
+    reference_text: str, user_text: str, reference_score: float
+):
+    computed_score = score_text(
+        reference_text=reference_text, user_text=user_text
+    )
+    assert isclose(computed_score, reference_score, rel_tol=1e-3)
 
 
 NORMALIZE_TEST_CASES = (
