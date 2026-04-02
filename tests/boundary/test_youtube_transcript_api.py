@@ -2,7 +2,7 @@ import pytest
 from youtube_transcript_api import FetchedTranscript
 from youtube_transcript_api import TranscriptList
 
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.integrations.youtube.wrapper import fetch_transcript
 from lingua_loop.integrations.youtube.wrapper import (
     video_has_transcript_in_language,
@@ -23,16 +23,16 @@ def test_german_transcript(german_transcript: FetchedTranscript):
 
 @pytest.mark.slow
 def test_fetch_transcript():
-    german = SupportedLanguages.GERMAN
+    german = SupportedLanguageCodes.GERMAN
     transcript = fetch_transcript(
-        video_id=TAGESSCHAU_VID_OFFICIAL, language=german
+        video_id=TAGESSCHAU_VID_OFFICIAL, language_code=german
     )
     assert transcript.snippets is not None
 
 
 @pytest.mark.slow
 def test_video_had_transcript_in_language(transcript_list: TranscriptList):
-    german = SupportedLanguages.GERMAN
+    german = SupportedLanguageCodes.GERMAN
     assert video_has_transcript_in_language(
-        transcript_list=transcript_list, language=german
+        transcript_list=transcript_list, language_code=german
     )

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class SupportedLanguages(str, Enum):
+class SupportedLanguageCodes(str, Enum):
     DUTCH = "nl"
     ENGLISH = "en"
     GERMAN = "de"

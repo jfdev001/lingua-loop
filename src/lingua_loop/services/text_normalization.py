@@ -3,7 +3,7 @@ from abc import abstractmethod
 from re import sub
 from typing import Literal
 
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 
 NormalizationForm = Literal["NFC", "NFKC", "NFD", "NFKD"]
 
@@ -69,10 +69,14 @@ class GermanNormalizer(TextNormalizer):
 
 
 class TextNormalizerFactory:
-    _languages = {SupportedLanguages.GERMAN: GermanNormalizer}
+    _language_code_to_normalizer = {
+        SupportedLanguageCodes.GERMAN: GermanNormalizer
+    }
 
-    def __call__(self, language: SupportedLanguages) -> TextNormalizer:
-        normalizer_cls = self._languages.get(language, GenericNormalizer)
+    def __call__(self, language_code: SupportedLanguageCodes) -> TextNormalizer:
+        normalizer_cls = self._language_code_to_normalizer.get(
+            language_code, GenericNormalizer
+        )
         return normalizer_cls()
 
 
