@@ -57,9 +57,9 @@ NORMALIZE_TEST_CASES = (
     [
         "Er hat gesagt, daß Döner schöner macht. Eine übliche Erklärung.",
         SupportedLanguages.GERMAN,
-        "Er hat gesagt, dass Doener schoener macht. Eine uebliche Erklaerung.",
+        "er hat gesagt dass doener schoener macht eine uebliche erklaerung",
     ],
-    ["I hate sand.", SupportedLanguages.ENGLISH, "I hate sand."],
+    ["I hate sand.", SupportedLanguages.ENGLISH, "i hate sand"],
 )
 
 
