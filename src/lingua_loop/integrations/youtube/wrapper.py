@@ -18,7 +18,7 @@ def list_transcripts(video_id: str) -> TranscriptList:
     return ytt_api.list(video_id)
 
 
-def has_transcript(
+def video_has_transcript_in_language(
     transcript_list: TranscriptList, language: SupportedLanguages
 ) -> bool:
     transcript_found = True

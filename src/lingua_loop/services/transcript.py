@@ -17,7 +17,7 @@ async def get_or_create_transcript(
     video_id: str,
     language: SupportedLanguages,
     session: AsyncSession,
-) -> Transcript | None:
+) -> Transcript:
     """Pass through for DB logic for now."""
     transcript = await read_or_create_transcript(
         video_id=video_id, language=language, session=session
@@ -28,7 +28,7 @@ async def get_or_create_transcript(
 
 async def get_transcript_with_segment(
     video_id: str, session: AsyncSession
-) -> Transcript | None:
+) -> Transcript:
     """Pass through for DB logic for now."""
     transcript = await read_transcript_with_segments(
         video_id=video_id, session=session

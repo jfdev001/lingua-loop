@@ -25,6 +25,9 @@ lingua_loop = ["templates/*", "static/*"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 
+[tool.isort]
+profile = "black"
+
 [dependency-groups]
 dev = [
     "hypothesis>=6.151.10",

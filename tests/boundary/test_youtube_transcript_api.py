@@ -4,7 +4,9 @@ from youtube_transcript_api import TranscriptList
 
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.integrations.youtube.wrapper import fetch_transcript
-from lingua_loop.integrations.youtube.wrapper import find_transcript
+from lingua_loop.integrations.youtube.wrapper import (
+    video_has_transcript_in_language,
+)
 from tests.constants import TAGESSCHAU_VID_OFFICIAL
 
 
@@ -29,9 +31,8 @@ def test_fetch_transcript():
 
 
 @pytest.mark.slow
-def test_find_transcript(transcript_list: TranscriptList):
+def test_video_had_transcript_in_language(transcript_list: TranscriptList):
     german = SupportedLanguages.GERMAN
-    transcript = find_transcript(
+    assert video_has_transcript_in_language(
         transcript_list=transcript_list, language=german
     )
-    assert transcript and transcript.language_code == german

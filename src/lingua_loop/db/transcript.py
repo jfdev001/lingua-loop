@@ -7,10 +7,13 @@ from youtube_transcript_api import FetchedTranscript
 
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
+from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.integrations.youtube.wrapper import fetch_transcript
-from lingua_loop.integrations.youtube.wrapper import has_transcript
 from lingua_loop.integrations.youtube.wrapper import list_transcripts
+from lingua_loop.integrations.youtube.wrapper import (
+    video_has_transcript_in_language,
+)
 
 
 def _get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
@@ -27,29 +30,31 @@ def _get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
 
 async def _create_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
-) -> Transcript | None:
-    transcript: Transcript | None = None
+) -> Transcript:
+
     transcript_list = list_transcripts(video_id=video_id)
-    if has_transcript(transcript_list=transcript_list, language=language):
-        fetched_transcript = fetch_transcript(
-            video_id=video_id, language=language
-        )
-        transcript_type = (
-            Transcript.TranscriptType.generated
-            if fetched_transcript.is_generated
-            else Transcript.TranscriptType.official
-        )
-        transcript = Transcript(
-            video_id=video_id,
-            language=language,
-            transcript_type=transcript_type,
-        )
+    if not video_has_transcript_in_language(
+        transcript_list=transcript_list, language=language
+    ):
+        raise TranscriptNotFoundError(video_id=video_id)
 
-        segments = _get_segments(fetched_transcript=fetched_transcript)
-        transcript.segments.extend(segments)
+    fetched_transcript = fetch_transcript(video_id=video_id, language=language)
+    transcript_type = (
+        Transcript.TranscriptType.generated
+        if fetched_transcript.is_generated
+        else Transcript.TranscriptType.official
+    )
+    transcript = Transcript(
+        video_id=video_id,
+        language=language,
+        transcript_type=transcript_type,
+    )
 
-        session.add(transcript)
-        await session.commit()
+    segments = _get_segments(fetched_transcript=fetched_transcript)
+    transcript.segments.extend(segments)
+
+    session.add(transcript)
+    await session.commit()
 
     return transcript
 
@@ -66,7 +71,7 @@ async def _read_transcript(
 
 async def read_or_create_transcript(
     video_id: str, language: SupportedLanguages, session: AsyncSession
-) -> Transcript | None:
+) -> Transcript:
     transcript = await _read_transcript(video_id=video_id, session=session)
     if not transcript:
         transcript = await _create_transcript(
@@ -77,11 +82,14 @@ async def read_or_create_transcript(
 
 async def read_transcript_with_segments(
     video_id: str, session: AsyncSession
-) -> Transcript | None:
+) -> Transcript:
     result = await session.execute(
         select(Transcript)
         .options(selectinload(Transcript.segments))
         .where(Transcript.video_id == video_id)
     )
     transcript = result.scalar_one_or_none()
+    if not transcript:
+        raise TranscriptNotFoundError(video_id=video_id)
+
     return transcript

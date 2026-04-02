@@ -27,13 +27,27 @@ async def get_transcript(
         video_id=video_id, language=language_code, session=session
     )
 
-    if not transcript:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Transcript not found"
-        )
-
     transcript_response = TranscriptResponse.model_validate(transcript)
     return transcript_response
+
+
+async def _validate_score_request(
+    request: ScoreRequest, session: AsyncSession
+) -> None:
+    transcript = (
+        await lingua_loop.services.transcript.get_transcript_with_segment(
+            video_id=request.video_id, session=session
+        )
+    )
+
+    segments = transcript.segments
+    if any(i < 0 or i >= len(segments) for i in request.segment_indices):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid segment index",
+        )
+
+    return
 
 
 @router.post("/api/score", response_model=ScoreResponse)
@@ -42,23 +56,7 @@ async def compute_score(
     session: AsyncSession = Depends(session.get_async_session),
 ):
     # Validate the request
-    transcript = (
-        await lingua_loop.services.transcript.get_transcript_with_segment(
-            video_id=request.video_id, session=session
-        )
-    )
-
-    if not transcript:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Transcript not found"
-        )
-
-    segments = transcript.segments
-    if any(i < 0 or i >= len(segments) for i in request.segment_indices):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid segment index",
-        )
+    await _validate_score_request(request=request, session=session)
 
     # Score the request
     score, reference_text = await lingua_loop.services.transcript.compute_score(
