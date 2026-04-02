@@ -47,9 +47,9 @@ class TextNormalizer(ABC):
         )
 
     def normalize_whitespace(self, text: str) -> str:
-        more_than_one_space = r"\s+"
+        one_or_more_spaces = r"\s+"
         space = " "
-        return sub(pattern=more_than_one_space, repl=space, string=text).strip()
+        return sub(pattern=one_or_more_spaces, repl=space, string=text).strip()
 
 
 class GenericNormalizer(TextNormalizer):
