@@ -38,8 +38,8 @@ def is_monotonically_increasing(ixs: List[int]) -> bool:
 def get_transcript_segments_by_ixs(
     transcript: Transcript, segment_ixs: List[int]
 ) -> List[Segment]:
-    segments = transcript.segments
     assert is_monotonically_increasing(segment_ixs)
+    segments = transcript.segments
     segments = [segments[ix] for ix in segment_ixs]
     return segments
 
