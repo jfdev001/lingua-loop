@@ -6,7 +6,6 @@ from fastapi import HTTPException
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import lingua_loop.services.transcript
 from lingua_loop.db import session
 from lingua_loop.db.models import Segment
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
@@ -14,6 +13,10 @@ from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
 from lingua_loop.schemas.transcript import SegmentSchema
 from lingua_loop.schemas.transcript import TranscriptResponse
+from lingua_loop.services.transcript import compute_score
+from lingua_loop.services.transcript import (
+    get_or_create_transcript_with_segments,
+)
 
 router = APIRouter()
 
@@ -27,7 +30,7 @@ async def get_transcript(
     language_code: SupportedLanguageCodes,
     session=Depends(session.get_async_session),
 ):
-    transcript = await lingua_loop.services.transcript.get_or_create_transcript_with_segments(
+    transcript = await get_or_create_transcript_with_segments(
         video_id=video_id, language_code=language_code, session=session
     )
 
@@ -50,7 +53,7 @@ def _segments_to_schema(segments: List[Segment]) -> List[SegmentSchema]:
 
 
 @router.post("/api/score", response_model=ScoreResponse)
-async def compute_score(
+async def score_transcription(
     request: ScoreRequest,
     session: AsyncSession = Depends(session.get_async_session),
 ):
@@ -58,7 +61,7 @@ async def compute_score(
     await _validate_score_request(request=request, session=session)
 
     # Score the request
-    score, reference_text = await lingua_loop.services.transcript.compute_score(
+    score, reference_text = await compute_score(
         video_id=request.video_id,
         segment_indices=request.segment_indices,
         user_text=request.user_text,
@@ -72,7 +75,7 @@ async def compute_score(
 async def _validate_score_request(
     request: ScoreRequest, session: AsyncSession
 ) -> None:
-    transcript = await lingua_loop.services.transcript.read_or_create_transcript_with_segments(
+    transcript = await get_or_create_transcript_with_segments(
         video_id=request.video_id,
         session=session,
         language_code=request.language_code,
