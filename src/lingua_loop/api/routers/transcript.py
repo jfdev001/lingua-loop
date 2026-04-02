@@ -1,26 +1,39 @@
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import lingua_loop.services.transcript
 from lingua_loop.db import session
+from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
+from lingua_loop.schemas.transcript import TranscriptResponse
 
 router = APIRouter()
 
 
-@router.get("/api/video/load/{video_id}")
-async def load_video(
-    video_id: str, session: AsyncSession = Depends(session.get_async_session)
+@router.get(
+    "/api/transcript/{video_id}/{language_code}",
+    response_model=TranscriptResponse,
+)
+async def get_transcript(
+    video_id: str,
+    language_code: SupportedLanguages,
+    session=Depends(session.get_async_session),
 ):
-    """"""
-    # TODO: service layer then needs to call DB
-    video = await lingua_loop.services.transcript.load_video(
-        video_id=video_id, session=session
+    transcript = await lingua_loop.services.transcript.get_or_create_transcript(
+        video_id=video_id, language=language_code, session=session
     )
-    # video = VideoRead(id=video_id, title="dummy")  # TODO: filler
-    # return video
+
+    if not transcript:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transcript not found"
+        )
+
+    transcript_response = TranscriptResponse.model_validate(transcript)
+    return transcript_response
 
 
 @router.post("/api/score", response_model=ScoreResponse)
@@ -28,20 +41,31 @@ async def compute_score(
     request: ScoreRequest,
     session: AsyncSession = Depends(session.get_async_session),
 ):
-    """on submit then a score can be output
+    # Validate the request
+    transcript = (
+        await lingua_loop.services.transcript.get_transcript_with_segment(
+            video_id=request.video_id, session=session
+        )
+    )
 
-    Should also send the start time information of the youtube video?? or
-    should limit start times only to those corresponding to segments in the
-    actually transcripts... to do that... the load_video DOES need to have
-    transcripts available to it to
-    """
-    pass
-    # TODO: use the video id and segment id to get the corresponding
-    # TODO: depends on video id so needs this from the frontend and it can't
-    # be null.... also gets
-    # segment of the transcript from the database with the exact text...
-    # note that it could be a list of segment ids!!
-    # score = await crud_transcript.compute_score(
-    #     request=request, session=session
-    # )
-    # return score
+    if not transcript:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transcript not found"
+        )
+
+    segments = transcript.segments
+    if any(i < 0 or i >= len(segments) for i in request.segment_indices):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid segment index",
+        )
+
+    # Score the request
+    score, reference_text = await lingua_loop.services.transcript.compute_score(
+        video_id=request.video_id,
+        segment_indices=request.segment_indices,
+        user_text=request.user_text,
+        session=session,
+    )
+    score_response = ScoreResponse(score=score, reference_text=reference_text)
+    return score_response

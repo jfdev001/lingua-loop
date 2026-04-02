@@ -7,10 +7,9 @@ from youtube_transcript_api import FetchedTranscript
 
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import SupportedLanguages
 from lingua_loop.integrations.youtube.wrapper import fetch_transcript
-from lingua_loop.integrations.youtube.wrapper import find_transcript
+from lingua_loop.integrations.youtube.wrapper import has_transcript
 from lingua_loop.integrations.youtube.wrapper import list_transcripts
 
 
@@ -31,10 +30,7 @@ async def _create_transcript(
 ) -> Transcript | None:
     transcript: Transcript | None = None
     transcript_list = list_transcripts(video_id=video_id)
-    transcript_meta = find_transcript(
-        transcript_list=transcript_list, language=language
-    )
-    if transcript_meta:
+    if has_transcript(transcript_list=transcript_list, language=language):
         fetched_transcript = fetch_transcript(
             video_id=video_id, language=language
         )
@@ -81,14 +77,11 @@ async def read_or_create_transcript(
 
 async def read_transcript_with_segments(
     video_id: str, session: AsyncSession
-) -> Transcript:
+) -> Transcript | None:
     result = await session.execute(
         select(Transcript)
         .options(selectinload(Transcript.segments))
         .where(Transcript.video_id == video_id)
     )
     transcript = result.scalar_one_or_none()
-    if transcript is None:
-        raise TranscriptNotFoundError(video_id=video_id)
-
     return transcript
