@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# node stuff
+node_modules/
+
 # pkg
 .venv
 uv.lock
