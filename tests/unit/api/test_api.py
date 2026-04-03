@@ -9,6 +9,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
 from lingua_loop.db.session import get_async_session
+from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.main import app as lingua_loop_app
 from lingua_loop.schemas.transcript import TranscriptResponse
@@ -69,17 +70,35 @@ async def test_get_transcript_success(
 
 
 @pytest.mark.asyncio
-async def test_get_transcript_invalid_video_id(client, mocker: MockerFixture):
-    raise
+async def test_get_transcript_invalid_video_id(
+    client: AsyncClient, mocker: MockerFixture
+):
+    video_id = "invalid_id"
+    mock_get_or_create_transcript_with_segments = mocker.patch(
+        f"{API}.get_or_create_transcript_with_segments",
+        new=mocker.AsyncMock(
+            side_effect=TranscriptNotFoundError(video_id=video_id)
+        ),
+    )
+
+    language_code = SupportedLanguageCodes.ENGLISH.value
+    url = f"/api/transcript/{video_id}/{language_code}"
+    response = await client.get(url=url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    detail = response.json()["detail"]
+    assert detail == f"Transcript not found for video_id={video_id}"
 
 
 @pytest.mark.asyncio
-async def test_score_transcription_success(client, mocker: MockerFixture):
+async def test_score_transcription_success(
+    client: AsyncClient, mocker: MockerFixture
+):
     raise
 
 
 @pytest.mark.asyncio
 async def test_score_transcription_invalid_segment_ixs(
-    client, mocker: MockerFixture
+    client: AsyncClient, mocker: MockerFixture
 ):
     raise
