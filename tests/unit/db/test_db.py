@@ -1,6 +1,5 @@
 import pytest
 import pytest_asyncio
-from pytest_mock import MockType
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +10,8 @@ from lingua_loop.db.session import get_engine_and_session_maker
 from lingua_loop.db.session import shutdown
 from lingua_loop.db.transcript import read_or_create_transcript_with_segments
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
+from tests.conftest import MockYoutube
 from tests.constants import IN_MEMORY
-from tests.constants import N_MOCKED_SEGMENTS
 from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
 from tests.constants import TAGESSCHAU_VIDEO_ID
 from tests.constants import TEST_VIDEO_ID
@@ -74,10 +73,7 @@ async def test_read_or_create_transcript_in_db(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_read_or_create_transcript_not_in_db(
-    seeded_db: AsyncSession,
-    mock_fetch_transcript: MockType,
-    mock_list_transcripts: MockType,
-    mock_video_has_transcript_in_language: MockType,
+    seeded_db: AsyncSession, mock_youtube: MockYoutube
 ):
     """
     The mocks here are to avoid hitting the youtube transcript api which occurs
@@ -89,7 +85,7 @@ async def test_read_or_create_transcript_not_in_db(
     )
 
     assert transcript.video_id == TAGESSCHAU_VIDEO_ID
-    assert len(transcript.segments) == N_MOCKED_SEGMENTS
-    mock_fetch_transcript.assert_called_once()
-    mock_list_transcripts.assert_called_once()
-    mock_video_has_transcript_in_language.assert_called_once()
+    assert len(transcript.segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
+    mock_youtube.fetch_transcript.assert_called_once()
+    mock_youtube.list_transcripts.assert_called_once()
+    mock_youtube.video_has_transcript_in_language.assert_called_once()
