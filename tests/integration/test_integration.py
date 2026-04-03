@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from tests.constants import TEST_DATABASE_PATH
 
 
@@ -36,7 +36,7 @@ async def integration_db_session():
 async def seeded_db(integration_db_session: AsyncSession):
     transcript = Transcript(
         video_id="tageschau",
-        language=SupportedLanguages.ENGLISH,  # adjust if needed
+        language_code=SupportedLanguageCodes.ENGLISH,  # adjust if needed
         transcript_type=Transcript.TranscriptType.official,
     )
 

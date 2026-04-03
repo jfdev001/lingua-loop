@@ -1,32 +1,33 @@
-from os import environ
-
 import pytest
 import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.db.transcript import read_or_create_transcript
-from lingua_loop.db.transcript import read_transcript_with_segments
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.db.session import create_db_and_tables
+from lingua_loop.db.session import get_engine_and_session_maker
+from lingua_loop.db.session import shutdown
+from lingua_loop.db.transcript import read_or_create_transcript_with_segments
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from tests.constants import IN_MEMORY
 from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
+from tests.constants import TAGESSCHAU_N_SEGMENTS_IN_TRANSCRIPT
+from tests.constants import TAGESSCHAU_VIDEO_ID
 from tests.constants import TEST_VIDEO_ID
 
 
 @pytest_asyncio.fixture(scope="module")
 async def unit_db_session():
-    environ[ENV_DATABASE_PATH] = IN_MEMORY
-    from lingua_loop.db import session
+    async_engine, async_session_maker = get_engine_and_session_maker(
+        database_path=IN_MEMORY
+    )
+    await create_db_and_tables(async_engine=async_engine)
 
-    await session.create_db_and_tables()
-
-    async with session.async_session_maker() as db_session:
+    async with async_session_maker() as db_session:
         yield db_session
 
-    await session.shutdown()
+    await shutdown(async_engine=async_engine)
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -34,7 +35,7 @@ async def seeded_db(unit_db_session: AsyncSession):
 
     transcript = Transcript(
         video_id=TEST_VIDEO_ID,
-        language=SupportedLanguages.ENGLISH,  # adjust if needed
+        language_code=SupportedLanguageCodes.ENGLISH,  # adjust if needed
         transcript_type=Transcript.TranscriptType.official,
     )
 
@@ -62,34 +63,22 @@ async def test_seed_test_data(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_read_or_create_transcript_in_db(seeded_db: AsyncSession):
-    german = SupportedLanguages.GERMAN
-    transcript = await read_or_create_transcript(
-        video_id=TEST_VIDEO_ID, language=german, session=seeded_db
+    german = SupportedLanguageCodes.GERMAN
+    transcript = await read_or_create_transcript_with_segments(
+        video_id=TEST_VIDEO_ID, language_code=german, session=seeded_db
     )
-    assert transcript and transcript.video_id == TEST_VIDEO_ID
+    assert transcript.video_id == TEST_VIDEO_ID
+    assert len(transcript.segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
 
 
 @pytest.mark.asyncio
 @pytest.mark.slow
 async def test_read_or_create_transcript_not_in_db(seeded_db: AsyncSession):
-    german = SupportedLanguages.GERMAN
-    tagesschau_20260330 = "KKC8HRkTzAY"
-    n_segments_tagesschau_20260330 = 249
-    transcript = await read_or_create_transcript(
-        video_id=tagesschau_20260330, language=german, session=seeded_db
-    )
-    assert transcript and (
-        transcript.video_id == tagesschau_20260330
-        and n_segments_tagesschau_20260330
-        and transcript.transcript_type == Transcript.TranscriptType.official
+    german = SupportedLanguageCodes.GERMAN
+    transcript = await read_or_create_transcript_with_segments(
+        video_id=TAGESSCHAU_VIDEO_ID, language_code=german, session=seeded_db
     )
 
-
-@pytest.mark.asyncio
-async def test_read_transcript_with_segments(seeded_db: AsyncSession):
-    transcript = await read_transcript_with_segments(
-        video_id=TEST_VIDEO_ID,
-        session=seeded_db,
-    )
-    segments = transcript.segments
-    assert segments and len(segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
+    assert transcript.video_id == TAGESSCHAU_VIDEO_ID
+    assert len(transcript.segments) == TAGESSCHAU_N_SEGMENTS_IN_TRANSCRIPT
+    assert transcript.transcript_type == Transcript.TranscriptType.official

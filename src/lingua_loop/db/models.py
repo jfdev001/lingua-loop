@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 
 
 class Base(DeclarativeBase):
@@ -23,8 +23,8 @@ class Transcript(Base):
 
     __tablename__ = "transcript"
     video_id: Mapped[str] = mapped_column(primary_key=True)
-    language: Mapped[SupportedLanguages] = mapped_column(
-        SqlEnum(SupportedLanguages)
+    language_code: Mapped[SupportedLanguageCodes] = mapped_column(
+        SqlEnum(SupportedLanguageCodes)
     )
 
     class TranscriptType(str, Enum):

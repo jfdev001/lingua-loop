@@ -1,47 +1,86 @@
+from typing import List
+
 from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import lingua_loop.services.transcript
-from lingua_loop.db import session
+from lingua_loop.db.models import Segment
+from lingua_loop.db.session import get_async_session
+from lingua_loop.exceptions import SegmentIndicesError
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
+from lingua_loop.schemas.transcript import SegmentSchema
+from lingua_loop.schemas.transcript import TranscriptResponse
+from lingua_loop.services.transcript import compute_score
+from lingua_loop.services.transcript import (
+    get_or_create_transcript_with_segments,
+)
 
 router = APIRouter()
 
 
-@router.get("/api/video/load/{video_id}")
-async def load_video(
-    video_id: str, session: AsyncSession = Depends(session.get_async_session)
+@router.get(
+    "/api/transcript/{video_id}/{language_code}",
+    response_model=TranscriptResponse,
+)
+async def get_transcript(
+    video_id: str,
+    language_code: SupportedLanguageCodes,
+    session=Depends(get_async_session),
 ):
-    """"""
-    # TODO: service layer then needs to call DB
-    video = await lingua_loop.services.transcript.load_video(
-        video_id=video_id, session=session
+    transcript = await get_or_create_transcript_with_segments(
+        video_id=video_id, language_code=language_code, session=session
     )
-    # video = VideoRead(id=video_id, title="dummy")  # TODO: filler
-    # return video
+
+    segments = _segments_to_schema(segments=transcript.segments)
+
+    transcript_response = TranscriptResponse(
+        video_id=video_id, segments=segments
+    )
+    return transcript_response
+
+
+def _segments_to_schema(segments: List[Segment]) -> List[SegmentSchema]:
+    segments_as_schema = [
+        SegmentSchema(
+            start=segment.start, duration=segment.duration, text=segment.text
+        )
+        for segment in segments
+    ]
+    return segments_as_schema
 
 
 @router.post("/api/score", response_model=ScoreResponse)
-async def compute_score(
+async def score_transcription(
     request: ScoreRequest,
-    session: AsyncSession = Depends(session.get_async_session),
+    session: AsyncSession = Depends(get_async_session),
 ):
-    """on submit then a score can be output
+    await _validate_score_request(request=request, session=session)
 
-    Should also send the start time information of the youtube video?? or
-    should limit start times only to those corresponding to segments in the
-    actually transcripts... to do that... the load_video DOES need to have
-    transcripts available to it to
-    """
-    pass
-    # TODO: use the video id and segment id to get the corresponding
-    # TODO: depends on video id so needs this from the frontend and it can't
-    # be null.... also gets
-    # segment of the transcript from the database with the exact text...
-    # note that it could be a list of segment ids!!
-    # score = await crud_transcript.compute_score(
-    #     request=request, session=session
-    # )
-    # return score
+    # Score the request
+    score, reference_text = await compute_score(
+        video_id=request.video_id,
+        segment_indices=request.segment_indices,
+        user_text=request.user_text,
+        language_code=request.language_code,
+        session=session,
+    )
+    score_response = ScoreResponse(score=score, reference_text=reference_text)
+    return score_response
+
+
+async def _validate_score_request(
+    request: ScoreRequest, session: AsyncSession
+) -> None:
+    transcript = await get_or_create_transcript_with_segments(
+        video_id=request.video_id,
+        session=session,
+        language_code=request.language_code,
+    )
+
+    segments = transcript.segments
+    if any(i < 0 or i >= len(segments) for i in request.segment_indices):
+        raise SegmentIndicesError(segment_indices=request.segment_indices)
+
+    return

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 # Environment variable names
+# TODO: shouldn't be used anymore... rely on local state... remove these!
 ENV_DATABASE_PATH = "DATABASE_PATH"
 ENV_DB_DRIVER = "DB_DRIVER"
 
@@ -15,3 +16,7 @@ TRANSCRIPTS_DB = "transcripts.db"
 DATABASE_DIR = "db"
 DEFAULT_ENV_DATABASE_PATH = BASE_DIR / DATABASE_DIR / TRANSCRIPTS_DB
 DEFAULT_ENV_DB_DRIVER = "sqlite+aiosqlite"
+
+# Score consts
+MAX_SCORE = 1.0
+MIN_SCORE = 0.0

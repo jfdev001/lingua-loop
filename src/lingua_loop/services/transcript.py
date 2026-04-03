@@ -1,26 +1,81 @@
 from difflib import SequenceMatcher
 from typing import List
+from typing import Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lingua_loop.constants import MAX_SCORE
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
-from lingua_loop.db.transcript import read_or_create_transcript
-from lingua_loop.db.transcript import read_transcript_with_segments
-from lingua_loop.integrations.youtube.types import SupportedLanguages
+from lingua_loop.db.transcript import read_or_create_transcript_with_segments
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.services.text_normalization import text_normalizer_factory
 
 
-async def get_transcript(
-    video_id: str, language: SupportedLanguages, session: AsyncSession
-):
-    transcript = await read_or_create_transcript(
-        video_id=video_id, language=language, session=session
+async def get_or_create_transcript_with_segments(
+    video_id: str,
+    language_code: SupportedLanguageCodes,
+    session: AsyncSession,
+) -> Transcript:
+    """Pass through for DB logic for now."""
+    transcript = await read_or_create_transcript_with_segments(
+        video_id=video_id, language_code=language_code, session=session
     )
+
     return transcript
 
 
-def score_text(reference_text: str, user_text: str):
+async def compute_score(
+    video_id: str,
+    segment_indices: list[int],
+    user_text: str,
+    language_code: SupportedLanguageCodes,
+    session: AsyncSession,
+) -> Tuple[float, str]:
+
+    transcript = await read_or_create_transcript_with_segments(
+        video_id=video_id, session=session, language_code=language_code
+    )
+
+    text_normalizer = text_normalizer_factory(language_code=language_code)
+
+    segments_by_indices = _get_transcript_segments_by_indices(
+        transcript=transcript, segment_indices=segment_indices
+    )
+    reference_text = " ".join([segment.text for segment in segments_by_indices])
+
+    normalized_reference_text = text_normalizer.normalize(text=reference_text)
+    normalized_user_text = text_normalizer.normalize(text=user_text)
+
+    score = _score_text(
+        reference_text=normalized_reference_text, user_text=normalized_user_text
+    )
+
+    return score, normalized_reference_text
+
+
+def _get_transcript_segments_by_indices(
+    transcript: Transcript, segment_indices: List[int]
+) -> List[Segment]:
+    assert _is_monotonically_increasing(segment_indices)
+    segments = transcript.segments
+    segments = [segments[ix] for ix in segment_indices]
+    return segments
+
+
+def _is_monotonically_increasing(indices: List[int]) -> bool:
+    assert len(indices) >= 1
+    monotonically_increasing: bool = True
+    for ix in range(0, len(indices) - 1):
+        cur = indices[ix]
+        next_ = indices[ix + 1]
+        if cur >= next_:
+            monotonically_increasing = False
+            break
+    return monotonically_increasing
+
+
+def _score_text(reference_text: str, user_text: str):
     """
     TODO: At some point, you may want to give the user information about
     word level mismatches so that they can see roughly what they missed...
@@ -31,9 +86,8 @@ def score_text(reference_text: str, user_text: str):
     user_words = user_text.split()
 
     max_n_words = max(len(ref_words), len(user_words))
-    max_score = 1.0
     if max_n_words == 0:  # handles no inputs
-        return max_score
+        return MAX_SCORE
 
     # zip truncates lists... therefore missing/extra words implicitly penalized
     # via division by max_n_words
@@ -46,50 +100,3 @@ def score_text(reference_text: str, user_text: str):
         total += ratio
 
     return total / max_n_words
-
-
-def is_monotonically_increasing(ixs: List[int]) -> bool:
-    assert len(ixs) >= 1
-    monotonically_increasing: bool = True
-    for ix in range(0, len(ixs) - 1):
-        cur = ixs[ix]
-        next_ = ixs[ix + 1]
-        if cur >= next_:
-            monotonically_increasing = False
-            break
-    return monotonically_increasing
-
-
-def get_transcript_segments_by_ixs(
-    transcript: Transcript, segment_ixs: List[int]
-) -> List[Segment]:
-    assert is_monotonically_increasing(segment_ixs)
-    segments = transcript.segments
-    segments = [segments[ix] for ix in segment_ixs]
-    return segments
-
-
-async def compute_score(
-    video_id: str, segment_ixs: list[int], user_text: str, session: AsyncSession
-) -> float:
-
-    transcript = await read_transcript_with_segments(
-        video_id=video_id, session=session
-    )
-
-    language = transcript.language
-    text_normalizer = text_normalizer_factory(language=language)
-
-    segments_by_ixs = get_transcript_segments_by_ixs(
-        transcript=transcript, segment_ixs=segment_ixs
-    )
-    segments_text = " ".join([segment.text for segment in segments_by_ixs])
-
-    normalized_segments_text = text_normalizer.normalize(text=segments_text)
-    normalized_user_text = text_normalizer.normalize(text=user_text)
-
-    score = score_text(
-        reference_text=normalized_segments_text, user_text=normalized_user_text
-    )
-
-    return score

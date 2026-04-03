@@ -3,26 +3,31 @@ from typing import List
 from pydantic import BaseModel
 from pydantic import Field
 
+from lingua_loop.constants import MAX_SCORE
+from lingua_loop.constants import MIN_SCORE
+from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 
-class Segment(BaseModel):
-    id: int
-    start: float
-    duration: float
-    text: str
+
+class SegmentSchema(BaseModel):
+    start: float = Field(ge=0.0)
+    duration: float = Field(gt=0.0)
+    text: str = Field(min_length=1)
 
 
 class TranscriptResponse(BaseModel):
-    video_id: str
-    title: str
-    segments: List[Segment]
+    video_id: str = Field(min_length=1)
+    segments: List[SegmentSchema]
 
 
 class ScoreRequest(BaseModel):
-    video_id: str
-    segment_ixs: List[int] = Field(min_length=1)
+    video_id: str = Field(min_length=1)
+    segment_indices: List[int] = Field(min_length=1)
     user_text: str = Field(min_length=1)
+    language_code: (
+        SupportedLanguageCodes  # TODO: does it make sense to have this?
+    )
 
 
 class ScoreResponse(BaseModel):
-    score: float
-    segments: List[Segment]
+    score: float = Field(ge=MIN_SCORE, le=MAX_SCORE)
+    reference_text: str = Field(min_length=1)
