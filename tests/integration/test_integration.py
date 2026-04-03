@@ -1,3 +1,4 @@
+from math import isclose
 from os import remove
 
 import pytest
@@ -9,6 +10,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lingua_loop.constants import MAX_SCORE
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
 from lingua_loop.db.session import create_db_and_tables
@@ -17,6 +19,8 @@ from lingua_loop.db.session import get_engine_and_session_maker
 from lingua_loop.db.session import shutdown
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.main import app
+from lingua_loop.schemas.transcript import ScoreRequest
+from lingua_loop.schemas.transcript import ScoreResponse
 from lingua_loop.schemas.transcript import TranscriptResponse
 from tests.conftest import MockYoutube
 from tests.constants import INTEGRATION_ENGLISH_VIDEO_ID
@@ -156,24 +160,49 @@ async def test_get_transcript_integration(
         mock_youtube.video_has_transcript_in_language.assert_called_once()
 
 
+SCORE_TRANSCRIPTION_TEST_CASES = (
+    [
+        INTEGRATION_ENGLISH_VIDEO_ID,
+        SupportedLanguageCodes.ENGLISH,
+        "hello world this is a test goodbye",
+        "hello world this is a test goodbye",
+        MAX_SCORE,
+    ],
+    [
+        INTEGRATION_GERMAN_VIDEO_ID,
+        SupportedLanguageCodes.GERMAN,
+        "Döner schöner.",
+        "Döner macht schöner. Ein üblicher Ausdruck. Wie heißen die Männer?",
+        0.1307,
+    ],
+)
+
+
+@pytest.mark.parametrize(
+    "video_id,language_code,user_text,reference_text,expected_score",
+    SCORE_TRANSCRIPTION_TEST_CASES,
+)
 @pytest.mark.asyncio
 async def test_score_transcription_integration(
-    client, mock_youtube: MockYoutube
+    video_id: str,
+    language_code: SupportedLanguageCodes,
+    user_text: str,
+    reference_text: str,
+    expected_score: float,
+    client: AsyncClient,
+    mock_youtube: MockYoutube,
 ):
-    raise NotImplementedError
-    # first call transcript endpoint (to populate DB)
-    await client.get("/api/transcript/abc123/en")
-
-    payload = {
-        "video_id": "abc123",
-        "language_code": "en",
-        "segment_indices": [0],
-        "user_text": "hello world",
-    }
+    payload = ScoreRequest(
+        video_id=video_id,
+        language_code=language_code,
+        segment_indices=[0, 1, 2],
+        user_text=user_text,
+    ).model_dump()
 
     response = await client.post("/api/score", json=payload)
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
-    data = response.json()
-    assert data["score"] > 0.9
+    parsed = ScoreResponse.model_validate_json(response.content)
+    assert isclose(parsed.score, expected_score, rel_tol=1e-3)
+    assert parsed.reference_text == reference_text
