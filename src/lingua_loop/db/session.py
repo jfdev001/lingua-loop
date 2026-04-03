@@ -36,7 +36,8 @@ async def shutdown(async_engine: AsyncEngine):
 
 
 def get_async_session(request: Request) -> Callable:
-    async_session_maker = request.app.state.async_session_maker
+    # `request` populated by lifespan(app)
+    async_session_maker = request.state.async_session_maker
 
     async def dependency() -> AsyncGenerator[AsyncSession, None]:
         async with async_session_maker() as session:

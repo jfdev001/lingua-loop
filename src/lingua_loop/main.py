@@ -17,15 +17,15 @@ from lingua_loop.db.session import shutdown
 from lingua_loop.exceptions import TranscriptNotFoundError
 
 
-def create_app() -> FastAPI:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     async_engine, async_session_maker = get_engine_and_session_maker()
+    await create_db_and_tables(async_engine=async_engine)
+    yield
+    await shutdown(async_engine=async_engine)
 
-    @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        await create_db_and_tables(async_engine=async_engine)
-        yield
-        await shutdown(async_engine=async_engine)
 
+def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
 
     @app.exception_handler(TranscriptNotFoundError)
