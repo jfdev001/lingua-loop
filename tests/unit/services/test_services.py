@@ -15,6 +15,8 @@ from lingua_loop.services.transcript import (
     get_or_create_transcript_with_segments,
 )
 
+SERVICES = "lingua_loop.services.transcript"
+
 
 @pytest.mark.asyncio
 async def test_get_or_create_transcript(mocker: MockerFixture):
@@ -27,7 +29,7 @@ async def test_get_or_create_transcript(mocker: MockerFixture):
     mock_db_result.language_code = language_code
 
     mock_read_or_create_transcript = mocker.patch(
-        "lingua_loop.services.transcript.read_or_create_transcript_with_segments",
+        f"{SERVICES}.read_or_create_transcript_with_segments",
         new_callable=AsyncMock,
     )
     mock_read_or_create_transcript.return_value = mock_db_result
@@ -94,14 +96,14 @@ async def test_compute_score(mocker: MockerFixture):
     """TODO: seems to rely a lot on internal details..."""
     # define mocked internal functions
     mock_read_or_create_transcript_with_segments = mocker.patch(
-        "lingua_loop.services.transcript.read_or_create_transcript_with_segments"
+        f"{SERVICES}.read_or_create_transcript_with_segments"
     )
     mock_transcript = mocker.Mock()
     mock_transcript.language_code = SupportedLanguageCodes.ENGLISH
     mock_read_or_create_transcript_with_segments.return_value = mock_transcript
 
     mock_get_transcript_segments_by_indices = mocker.patch(
-        "lingua_loop.services.transcript._get_transcript_segments_by_indices"
+        f"{SERVICES}._get_transcript_segments_by_indices"
     )
     mock_segments_by_indices = mocker.Mock()
     mock_segment_1 = mocker.Mock()
@@ -127,6 +129,8 @@ async def test_compute_score(mocker: MockerFixture):
         language_code=language_code,
     )
 
+    assert mock_score == MAX_SCORE
+
     # assert calls to mocked functions
     mock_read_or_create_transcript_with_segments.assert_awaited_once_with(
         video_id=video_id, session=mock_session, language_code=language_code
@@ -135,5 +139,3 @@ async def test_compute_score(mocker: MockerFixture):
     mock_get_transcript_segments_by_indices.assert_called_once_with(
         transcript=mock_transcript, segment_indices=segment_indices
     )
-
-    assert mock_score == MAX_SCORE

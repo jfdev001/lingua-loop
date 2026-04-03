@@ -57,7 +57,6 @@ async def score_transcription(
     request: ScoreRequest,
     session: AsyncSession = Depends(session.get_async_session),
 ):
-    # Validate the request
     await _validate_score_request(request=request, session=session)
 
     # Score the request
@@ -85,7 +84,7 @@ async def _validate_score_request(
     if any(i < 0 or i >= len(segments) for i in request.segment_indices):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid segment index",
+            detail=f"Invalid segment indices, got {request.segment_indices}",
         )
 
     return
