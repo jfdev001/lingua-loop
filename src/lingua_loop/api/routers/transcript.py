@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.db import session
 from lingua_loop.db.models import Segment
+from lingua_loop.db.session import get_async_session
 from lingua_loop.exceptions import SegmentIndicesError
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.schemas.transcript import ScoreRequest
@@ -27,7 +27,7 @@ router = APIRouter()
 async def get_transcript(
     video_id: str,
     language_code: SupportedLanguageCodes,
-    session=Depends(session.get_async_session),
+    session=Depends(get_async_session),
 ):
     transcript = await get_or_create_transcript_with_segments(
         video_id=video_id, language_code=language_code, session=session
@@ -54,7 +54,7 @@ def _segments_to_schema(segments: List[Segment]) -> List[SegmentSchema]:
 @router.post("/api/score", response_model=ScoreResponse)
 async def score_transcription(
     request: ScoreRequest,
-    session: AsyncSession = Depends(session.get_async_session),
+    session: AsyncSession = Depends(get_async_session),
 ):
     await _validate_score_request(request=request, session=session)
 

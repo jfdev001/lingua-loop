@@ -1,13 +1,13 @@
-from os import environ
-
 import pytest
 import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.constants import ENV_DATABASE_PATH
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
+from lingua_loop.db.session import create_db_and_tables
+from lingua_loop.db.session import get_engine_and_session_maker
+from lingua_loop.db.session import shutdown
 from lingua_loop.db.transcript import read_or_create_transcript_with_segments
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from tests.constants import IN_MEMORY
@@ -19,15 +19,15 @@ from tests.constants import TEST_VIDEO_ID
 
 @pytest_asyncio.fixture(scope="module")
 async def unit_db_session():
-    environ[ENV_DATABASE_PATH] = IN_MEMORY
-    from lingua_loop.db import session
+    async_engine, async_session_maker = get_engine_and_session_maker(
+        database_path=IN_MEMORY
+    )
+    await create_db_and_tables(async_engine=async_engine)
 
-    await session.create_db_and_tables()
-
-    async with session.async_session_maker() as db_session:
+    async with async_session_maker() as db_session:
         yield db_session
 
-    await session.shutdown()
+    await shutdown(async_engine=async_engine)
 
 
 @pytest_asyncio.fixture(scope="module")

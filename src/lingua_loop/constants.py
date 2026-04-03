@@ -1,6 +1,7 @@
 from pathlib import Path
 
 # Environment variable names
+# TODO: shouldn't be used anymore... rely on local state... remove these!
 ENV_DATABASE_PATH = "DATABASE_PATH"
 ENV_DB_DRIVER = "DB_DRIVER"
 

@@ -11,18 +11,21 @@ from fastapi.staticfiles import StaticFiles
 from lingua_loop.api.routers import transcript
 from lingua_loop.constants import STATIC_DIR
 from lingua_loop.constants import TEMPLATES_DIR
-from lingua_loop.db import session
+from lingua_loop.db.session import create_db_and_tables
+from lingua_loop.db.session import get_engine_and_session_maker
+from lingua_loop.db.session import shutdown
 from lingua_loop.exceptions import TranscriptNotFoundError
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await session.create_db_and_tables()
-    yield
-    await session.shutdown()
-
-
 def create_app() -> FastAPI:
+    async_engine, async_session_maker = get_engine_and_session_maker()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        await create_db_and_tables(async_engine=async_engine)
+        yield
+        await shutdown(async_engine=async_engine)
+
     app = FastAPI(lifespan=lifespan)
 
     @app.exception_handler(TranscriptNotFoundError)
