@@ -14,6 +14,7 @@ from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.main import app as lingua_loop_app
 from lingua_loop.schemas.transcript import ScoreRequest
+from lingua_loop.schemas.transcript import ScoreResponse
 from lingua_loop.schemas.transcript import TranscriptResponse
 
 API = "lingua_loop.api.routers.transcript"
@@ -55,19 +56,19 @@ async def test_get_transcript_success(
     mock_transcript.segments = [mock_segment]
     mock_get_or_create_transcript_with_segments.return_value = mock_transcript
 
-    # test endpoint
+    # request endpoint
     video_id = "abc123"
     language_code = SupportedLanguageCodes.ENGLISH.value
     url = f"/api/transcript/{video_id}/{language_code}"
-
     response = await client.get(url=url)
-    assert response.status_code == status.HTTP_200_OK
 
+    # check response
+    assert response.status_code == status.HTTP_200_OK
     parsed = TranscriptResponse.model_validate_json(response.content)
     assert parsed.video_id == video_id
     assert len(parsed.segments) == len(mock_transcript.segments)
 
-    # assert call to mocked function
+    # check mocked internals
     mock_get_or_create_transcript_with_segments.assert_awaited_once()
 
 
@@ -75,6 +76,7 @@ async def test_get_transcript_success(
 async def test_get_transcript_invalid_video_id(
     client: AsyncClient, mocker: MockerFixture
 ):
+    # mock internals
     video_id = "invalid_id"
     mock_get_or_create_transcript_with_segments = mocker.patch(
         f"{API}.get_or_create_transcript_with_segments",
@@ -83,11 +85,13 @@ async def test_get_transcript_invalid_video_id(
         ),
     )
 
+    # request endpoint
     language_code = SupportedLanguageCodes.ENGLISH.value
     url = f"/api/transcript/{video_id}/{language_code}"
     response = await client.get(url=url)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    # check response
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     detail = response.json()["detail"]
     assert detail == f"Transcript not found for video_id={video_id}"
 
@@ -96,15 +100,47 @@ async def test_get_transcript_invalid_video_id(
 async def test_score_transcription_success(
     client: AsyncClient, mocker: MockerFixture
 ):
-    # mock internals: _validate, compute_score
-    mock_validate_score_request = mocker.patch(f"{API}._validate_score_request")
-    assert False
+    # mock internals
+    mock_validate_score_request = mocker.patch(
+        f"{API}._validate_score_request", new=mocker.AsyncMock()
+    )
+
+    mock_compute_score = mocker.patch(f"{API}.compute_score")
+    mock_score = 0.625  # expected result of _score_text(...)
+    mock_reference_text = "Hello world!"
+    mock_compute_score.return_value = (mock_score, mock_reference_text)
+
+    # request endpoint
+    video_id = "abc123"
+    language_code = SupportedLanguageCodes.ENGLISH
+    segment_indices = [0]
+    user_text = "The world!"
+    payload = ScoreRequest(
+        language_code=language_code,
+        segment_indices=segment_indices,
+        user_text=user_text,
+        video_id=video_id,
+    ).model_dump()
+
+    url = "/api/score"
+    response = await client.post(url=url, json=payload)
+
+    # check response
+    assert response.status_code == status.HTTP_200_OK
+    parsed = ScoreResponse.model_validate_json(response.content)
+    assert parsed.score == mock_score
+    assert parsed.reference_text == mock_reference_text
+
+    # check mocked internals
+    mock_validate_score_request.assert_awaited_once()
+    mock_compute_score.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_score_transcription_invalid_segment_ixs(
     client: AsyncClient, mocker: MockerFixture
 ):
+    # mock internals
     invalid_segment_indices = [999]
     mock_validate_score_request = mocker.patch(
         f"{API}._validate_score_request",
@@ -115,6 +151,7 @@ async def test_score_transcription_invalid_segment_ixs(
         ),
     )
 
+    # request endpoint
     video_id = "abc123"
     language_code = SupportedLanguageCodes.ENGLISH
     user_text = "a transcription attempt"
@@ -127,4 +164,6 @@ async def test_score_transcription_invalid_segment_ixs(
 
     url = "/api/score"
     response = await client.post(url=url, json=payload)
+
+    # check response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
