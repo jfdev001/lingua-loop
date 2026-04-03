@@ -57,8 +57,8 @@ async def seeded_db(unit_db_session: AsyncSession):
 @pytest.mark.asyncio
 async def test_seed_test_data(seeded_db: AsyncSession):
     result = await seeded_db.execute(select(Transcript))
-    videos = result.scalars().all()
-    assert len(videos) == 1
+    transcripts = result.scalars().all()
+    assert len(transcripts) == 1
 
 
 @pytest.mark.asyncio
