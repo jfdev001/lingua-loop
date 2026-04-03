@@ -9,9 +9,11 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
 from lingua_loop.db.session import get_async_session
+from lingua_loop.exceptions import SegmentIndicesError
 from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.main import app as lingua_loop_app
+from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import TranscriptResponse
 
 API = "lingua_loop.api.routers.transcript"
@@ -94,11 +96,35 @@ async def test_get_transcript_invalid_video_id(
 async def test_score_transcription_success(
     client: AsyncClient, mocker: MockerFixture
 ):
-    raise
+    # mock internals: _validate, compute_score
+    mock_validate_score_request = mocker.patch(f"{API}._validate_score_request")
+    assert False
 
 
 @pytest.mark.asyncio
 async def test_score_transcription_invalid_segment_ixs(
     client: AsyncClient, mocker: MockerFixture
 ):
-    raise
+    invalid_segment_indices = [999]
+    mock_validate_score_request = mocker.patch(
+        f"{API}._validate_score_request",
+        new=mocker.AsyncMock(
+            side_effect=SegmentIndicesError(
+                segment_indices=invalid_segment_indices
+            )
+        ),
+    )
+
+    video_id = "abc123"
+    language_code = SupportedLanguageCodes.ENGLISH
+    user_text = "a transcription attempt"
+    payload = ScoreRequest(
+        video_id=video_id,
+        language_code=language_code,
+        segment_indices=invalid_segment_indices,
+        user_text=user_text,
+    ).model_dump()
+
+    url = "/api/score"
+    response = await client.post(url=url, json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -2,12 +2,11 @@ from typing import List
 
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lingua_loop.db import session
 from lingua_loop.db.models import Segment
+from lingua_loop.exceptions import SegmentIndicesError
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.schemas.transcript import ScoreRequest
 from lingua_loop.schemas.transcript import ScoreResponse
@@ -82,9 +81,6 @@ async def _validate_score_request(
 
     segments = transcript.segments
     if any(i < 0 or i >= len(segments) for i in request.segment_indices):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid segment indices, got {request.segment_indices}",
-        )
+        raise SegmentIndicesError(segment_indices=request.segment_indices)
 
     return
