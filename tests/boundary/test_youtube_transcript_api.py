@@ -7,7 +7,7 @@ from lingua_loop.integrations.youtube.wrapper import fetch_transcript
 from lingua_loop.integrations.youtube.wrapper import (
     video_has_transcript_in_language,
 )
-from tests.constants import TAGESSCHAU_VID_OFFICIAL
+from tests.constants import TAGESSCHAU_VIDEO_ID
 
 
 @pytest.mark.slow
@@ -25,9 +25,9 @@ def test_german_transcript(german_transcript: FetchedTranscript):
 def test_fetch_transcript():
     german = SupportedLanguageCodes.GERMAN
     transcript = fetch_transcript(
-        video_id=TAGESSCHAU_VID_OFFICIAL, language_code=german
+        video_id=TAGESSCHAU_VIDEO_ID, language_code=german
     )
-    assert transcript.snippets is not None
+    assert transcript.snippets
 
 
 @pytest.mark.slow

@@ -3,7 +3,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 from lingua_loop.integrations.youtube.wrapper import list_transcripts
-from tests.constants import TAGESSCHAU_VID_OFFICIAL
+from tests.constants import TAGESSCHAU_VIDEO_ID
 
 
 @pytest.fixture(scope="session")
@@ -14,11 +14,11 @@ def ytt_api():
 @pytest.fixture(scope="session")
 def german_transcript(ytt_api: YouTubeTranscriptApi):
     tagesschau_transcript = ytt_api.fetch(
-        TAGESSCHAU_VID_OFFICIAL, languages=[SupportedLanguageCodes.GERMAN]
+        TAGESSCHAU_VIDEO_ID, languages=[SupportedLanguageCodes.GERMAN]
     )
     return tagesschau_transcript
 
 
 @pytest.fixture(scope="session")
 def transcript_list():
-    return list_transcripts(video_id=TAGESSCHAU_VID_OFFICIAL)
+    return list_transcripts(video_id=TAGESSCHAU_VIDEO_ID)
