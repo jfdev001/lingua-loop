@@ -1,3 +1,5 @@
+let player;
+
 // TODO:
 const appState = {
     videoId: null,

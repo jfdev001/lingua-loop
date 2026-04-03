@@ -50,3 +50,5 @@ Pytest](https://testdriven.io/blog/fastapi-crud/) &
 [8] [ecmwf/forecast-in-a-box](https://github.com/ecmwf/forecast-in-a-box)
 
 [9] [fastapi-docs: Testing Dependencies](https://fastapi.tiangolo.com/advanced/testing-dependencies/)
+
+[10] [Build Advanced Youtube Player UI -- Video](https://www.youtube.com/watch?v=lsu-g-_6i_A&list=PLzKme01IAXkLBmWBihSwIhLk8Qluli0Jl&index=2) and [Build Advanced Youtube Player UI -- Source Code](https://codepen.io/PixelPerfectLabs/pen/PwwrJge)

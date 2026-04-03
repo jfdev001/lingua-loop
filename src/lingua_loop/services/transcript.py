@@ -51,7 +51,7 @@ async def compute_score(
         reference_text=normalized_reference_text, user_text=normalized_user_text
     )
 
-    return score, normalized_reference_text
+    return score, reference_text
 
 
 def _get_transcript_segments_by_indices(

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@types/youtube": "^0.1.2"
+  }
+}

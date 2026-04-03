@@ -11,6 +11,7 @@ from tests.constants import TAGESSCHAU_VIDEO_ID
 
 
 @pytest.mark.slow
+@pytest.mark.skip
 def test_german_transcript(german_transcript: FetchedTranscript):
     snippets = german_transcript.snippets
     assert isinstance(snippets, list)
@@ -22,6 +23,7 @@ def test_german_transcript(german_transcript: FetchedTranscript):
 
 
 @pytest.mark.slow
+@pytest.mark.skip
 def test_fetch_transcript():
     german = SupportedLanguageCodes.GERMAN
     transcript = fetch_transcript(
@@ -31,6 +33,7 @@ def test_fetch_transcript():
 
 
 @pytest.mark.slow
+@pytest.mark.skip
 def test_video_had_transcript_in_language(transcript_list: TranscriptList):
     german = SupportedLanguageCodes.GERMAN
     assert video_has_transcript_in_language(

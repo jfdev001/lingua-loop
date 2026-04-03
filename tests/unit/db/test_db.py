@@ -10,9 +10,9 @@ from lingua_loop.db.session import get_engine_and_session_maker
 from lingua_loop.db.session import shutdown
 from lingua_loop.db.transcript import read_or_create_transcript_with_segments
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
+from tests.conftest import MockYoutube
 from tests.constants import IN_MEMORY
 from tests.constants import N_SEGMENTS_IN_TEST_TRANSCRIPT
-from tests.constants import TAGESSCHAU_N_SEGMENTS_IN_TRANSCRIPT
 from tests.constants import TAGESSCHAU_VIDEO_ID
 from tests.constants import TEST_VIDEO_ID
 
@@ -57,8 +57,8 @@ async def seeded_db(unit_db_session: AsyncSession):
 @pytest.mark.asyncio
 async def test_seed_test_data(seeded_db: AsyncSession):
     result = await seeded_db.execute(select(Transcript))
-    videos = result.scalars().all()
-    assert len(videos) == 1
+    transcripts = result.scalars().all()
+    assert len(transcripts) == 1
 
 
 @pytest.mark.asyncio
@@ -72,13 +72,20 @@ async def test_read_or_create_transcript_in_db(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-@pytest.mark.slow
-async def test_read_or_create_transcript_not_in_db(seeded_db: AsyncSession):
+async def test_read_or_create_transcript_not_in_db(
+    seeded_db: AsyncSession, mock_youtube: MockYoutube
+):
+    """
+    The mocks here are to avoid hitting the youtube transcript api which occurs
+    in `lingua_loop.db.transcript._create_transcript`.
+    """
     german = SupportedLanguageCodes.GERMAN
     transcript = await read_or_create_transcript_with_segments(
         video_id=TAGESSCHAU_VIDEO_ID, language_code=german, session=seeded_db
     )
 
     assert transcript.video_id == TAGESSCHAU_VIDEO_ID
-    assert len(transcript.segments) == TAGESSCHAU_N_SEGMENTS_IN_TRANSCRIPT
-    assert transcript.transcript_type == Transcript.TranscriptType.official
+    assert len(transcript.segments) == N_SEGMENTS_IN_TEST_TRANSCRIPT
+    mock_youtube.fetch_transcript.assert_called_once()
+    mock_youtube.list_transcripts.assert_called_once()
+    mock_youtube.video_has_transcript_in_language.assert_called_once()
