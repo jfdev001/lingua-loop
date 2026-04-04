@@ -11,7 +11,7 @@ from tests.constants import TAGESSCHAU_VIDEO_ID
 
 
 def delay():
-    sleep(random() * randint(1, 5))
+    sleep(random() * randint(3, 5))
 
 
 @pytest.fixture(scope="session")
