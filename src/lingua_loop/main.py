@@ -1,6 +1,4 @@
 from contextlib import asynccontextmanager
-from typing import Dict
-from typing import List
 from typing import TypedDict
 
 from fastapi import FastAPI
@@ -50,13 +48,15 @@ def create_app() -> FastAPI:
 
     @app.get("/", include_in_schema=False)
     def index(request: Request):
-        # NOTE: maybe just do regular dict instead of list of dicts??
-        languages: List[Dict] = [
-            {"language_code": language_code.value, "language": language.value}
+        language_to_language_code = {
+            language.value: language_code.value
             for language_code, language in language_code_to_language.items()
-        ]
+        }
+
         return templates.TemplateResponse(
-            request, "index.html", {"languages": languages}
+            request,
+            "index.html",
+            {"language_to_language_code": language_to_language_code},
         )
 
     app.include_router(transcript.router)

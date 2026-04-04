@@ -16,10 +16,10 @@
         <!-- Language radio buttons -->
         <form>
             <label>Language to Transcribe:</label><br>
-            {% for lang in languages %}
+            {% for language, language_code in language_to_language_code.items() %}
             <label>
-                <input type="radio" name="language" value="{{ lang.language_code }}">
-                {{ lang.language }}
+                <input type="radio" name="language" value="{{ language_code }}" {% if language_code == 'en' %}checked{% endif %}  >
+                {{ language }}
             </label><br>
             {% endfor %}
         </form>
@@ -86,7 +86,7 @@
 
     <script>
         window.APP_CONFIG = {
-            languages: {{languages | tojson}}
+            language_to_language_code: {{language_to_language_code | tojson}}
         };
     </script>
     <script src="/static/app.js"></script>
