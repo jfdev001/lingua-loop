@@ -100,7 +100,12 @@ async def seeded_db_session(db_session: AsyncSession):
 
 @pytest_asyncio.fixture
 async def app_with_db(db_session: AsyncSession):
-    """Per test application"""
+    """Per test application
+
+    NOTE: By overriding the get_async_session dependency, I fail to test that
+    aspect of the application. In end to end testing, any issues at that
+    related to that would only arise during end-to-end testing...
+    """
 
     async def override_get_async_session():
         yield db_session
