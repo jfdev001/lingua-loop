@@ -37,7 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const defaultBbcEnglishLearningVideoId = "Tefu_NvcC0k" // no affiliation
   const defaultLanguageCode = "en"
   const state = {
-    /** @type {YT.Player */ player: null,
+    /** @type {YT.Player} */ player: null,
     /** @type {TranscriptResponse} */ transcript: null,
     videoId: defaultBbcEnglishLearningVideoId,
     currentSegment: 0,
