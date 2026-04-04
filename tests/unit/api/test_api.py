@@ -54,6 +54,7 @@ async def test_get_transcript_success(
     mock_segment.duration = 4.2
     mock_segment.text = "slow hello"
     mock_transcript.segments = [mock_segment]
+    mock_transcript.is_generated = False
     mock_get_or_create_transcript_with_segments.return_value = mock_transcript
 
     # request endpoint

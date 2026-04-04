@@ -17,6 +17,7 @@ class SegmentSchema(BaseModel):
 class TranscriptResponse(BaseModel):
     video_id: str = Field(min_length=1)
     segments: List[SegmentSchema]
+    is_generated: bool
 
 
 class ScoreRequest(BaseModel):

@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Dict
 from typing import List
+from typing import TypedDict
 
 from fastapi import FastAPI
 from fastapi import Request
@@ -8,6 +9,8 @@ from fastapi import status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from lingua_loop.api.routers import transcript
 from lingua_loop.constants import STATIC_DIR
@@ -19,11 +22,15 @@ from lingua_loop.exceptions import TranscriptNotFoundError
 from lingua_loop.integrations.youtube.types import language_code_to_language
 
 
+class State(TypedDict):
+    async_session_maker: async_sessionmaker[AsyncSession]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async_engine, async_session_maker = get_engine_and_session_maker()
     await create_db_and_tables(async_engine=async_engine)
-    yield
+    yield {"async_session_maker": async_session_maker}
     await shutdown(async_engine=async_engine)
 
 

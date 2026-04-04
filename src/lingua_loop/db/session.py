@@ -1,6 +1,5 @@
 from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import Callable
 from typing import Tuple
 
 from fastapi import Request
@@ -35,12 +34,11 @@ async def shutdown(async_engine: AsyncEngine):
     await async_engine.dispose()
 
 
-def get_async_session(request: Request) -> Callable:
-    # `request` populated by lifespan(app)
+async def get_async_session(
+    request: Request,
+) -> AsyncGenerator[AsyncSession, None]:
+    # `request` and state populated by lifespan(app)
     async_session_maker = request.state.async_session_maker
 
-    async def dependency() -> AsyncGenerator[AsyncSession, None]:
-        async with async_session_maker() as session:
-            yield session
-
-    return dependency
+    async with async_session_maker() as session:
+        yield session

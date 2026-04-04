@@ -38,13 +38,26 @@
             </button>
         </div>
 
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" style="display: none;">
+          ⏳ Loading transcripts...
+        </div>
+
         <!-- Video player  -->
+        <div id="player"></div>
 
         <!-- n segments -->
         <div style="margin-top: 20px;">
             <label for="numSegments">Number of segments to transcribe:</label><br><br>
 
-            <input type="number" id="numSegments" min="0" step="1" value="0" style="width: 80px; padding: 6px;" />
+            <input
+                type="number"
+                id="numSegments"
+                min="1"
+                step="1"
+                value="1"
+                style="width: 80px; padding: 6px;"
+            />
         </div>
 
         <!-- Ready to transcribe -->
@@ -54,7 +67,12 @@
 
         <!-- Transcript input -->
         <div>
-            <textarea id="userText" placeholder="Type what you hear..." rows="3" cols="60"></textarea>
+            <textarea
+                id="userText"
+                placeholder="Type what you hear..."
+                rows="3"
+                cols="60">
+            </textarea>
             <button>Submit</button>
         </div>
 

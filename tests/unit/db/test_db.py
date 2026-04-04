@@ -36,7 +36,7 @@ async def seeded_db(unit_db_session: AsyncSession):
     transcript = Transcript(
         video_id=TEST_VIDEO_ID,
         language_code=SupportedLanguageCodes.ENGLISH,  # adjust if needed
-        transcript_type=Transcript.TranscriptType.official,
+        is_generated=False,
     )
 
     segments = [

@@ -1,6 +1,5 @@
 from datetime import UTC
 from datetime import datetime
-from enum import Enum
 from typing import List
 
 from sqlalchemy import DateTime
@@ -27,13 +26,7 @@ class Transcript(Base):
         SqlEnum(SupportedLanguageCodes)
     )
 
-    class TranscriptType(str, Enum):
-        official = "official"
-        generated = "generated"
-
-    transcript_type: Mapped[TranscriptType] = mapped_column(
-        SqlEnum(TranscriptType)
-    )
+    is_generated: Mapped[bool]
 
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)

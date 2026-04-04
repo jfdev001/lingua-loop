@@ -55,15 +55,12 @@ async def _create_transcript(
     fetched_transcript = fetch_transcript(
         video_id=video_id, language_code=language_code
     )
-    transcript_type = (
-        Transcript.TranscriptType.generated
-        if fetched_transcript.is_generated
-        else Transcript.TranscriptType.official
-    )
+
+    is_generated = fetched_transcript.is_generated
     transcript = Transcript(
         video_id=video_id,
         language_code=language_code,
-        transcript_type=transcript_type,
+        is_generated=is_generated,
     )
 
     segments = _get_segments(fetched_transcript=fetched_transcript)

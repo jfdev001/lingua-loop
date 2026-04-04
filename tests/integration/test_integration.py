@@ -48,7 +48,7 @@ async def seed_dummy_english_transcript(my_db_session: AsyncSession):
     transcript = Transcript(
         video_id=INTEGRATION_ENGLISH_VIDEO_ID,
         language_code=SupportedLanguageCodes.ENGLISH,
-        transcript_type=Transcript.TranscriptType.official,
+        is_generated=False,
     )
 
     segments = [
@@ -71,7 +71,7 @@ async def seed_dummy_german_transcript(my_db_session: AsyncSession):
     transcript = Transcript(
         video_id=INTEGRATION_GERMAN_VIDEO_ID,
         language_code=SupportedLanguageCodes.GERMAN,
-        transcript_type=Transcript.TranscriptType.official,
+        is_generated=False,
     )
 
     segments = [
