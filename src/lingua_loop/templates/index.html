@@ -6,38 +6,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>LinguaLoop</title>
     <link rel="icon" href="/static/favicon.ico">
-    <!-- <link rel="stylesheet" href="/static/style.css"> -->
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
     <h1>LinguaLoop</h1>
 
-    <!-- Language radio buttons -->
-    <form>
-        {% for lang in languages %}
-        <label>
-            <input type="radio" name="language" value="{{ lang.language_code }}">
-            {{ lang.language }}
-        </label><br>
-        {% endfor %}
-    </form>
+    <div class="app">
+        <!-- Language radio buttons -->
+        <form>
+            <label>Language to Transcribe:</label><br>
+            {% for lang in languages %}
+            <label>
+                <input type="radio" name="language" value="{{ lang.language_code }}">
+                {{ lang.language }}
+            </label><br>
+            {% endfor %}
+        </form>
 
-    <!-- Input video -->
+        <!-- NOTE: Width of any written fields should probably be max available -->
 
-    <!-- Video player  -->
+        <!-- Input video -->
+        <div>
+            <label for="videoUrl">YouTube Video URL:</label><br>
 
-    <!-- n segments  -->
+            <input type="text" id="videoUrl" placeholder="Paste YouTube link here..."
+                style="width: 400px; padding: 8px;" />
 
-    <!-- ready to transcribe  -->
+            <button id="loadVideoBtn">
+                Load Video
+            </button>
+        </div>
 
-    <!-- Transcript input -->
-    <div style="margin-top: 20px;">
-        <textarea id="userText" placeholder="Type what you hear..." rows="3" cols="60"></textarea>
-        <button>Submit</button>
+        <!-- Video player  -->
+
+        <!-- n segments -->
+        <div style="margin-top: 20px;">
+            <label for="numSegments">Number of segments to transcribe:</label><br><br>
+
+            <input type="number" id="numSegments" min="0" step="1" value="0" style="width: 80px; padding: 6px;" />
+        </div>
+
+        <!-- Ready to transcribe -->
+        <button id="startTranscriptionBtn" class="primary-btn">
+            ▶️ Snap to Segment & Transcribe
+        </button>
+
+        <!-- Transcript input -->
+        <div>
+            <textarea id="userText" placeholder="Type what you hear..." rows="3" cols="60"></textarea>
+            <button>Submit</button>
+        </div>
+
+        <!-- Reference  -->
+        <div>
+            <textarea id="referenceText" placeholder="Reference will appear here..." rows="3" cols="60"
+                readonly></textarea>
+        </div>
+
     </div>
-
-    <!-- Reference  -->
-    <div id="referenceText" style="margin-top: 20px; font-weight: bold;"></div>
 
     <script>
         window.APP_CONFIG = {
