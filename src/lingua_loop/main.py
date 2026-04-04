@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
+from typing import Dict
+from typing import List
 
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import status
-from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from lingua_loop.api.routers import transcript
 from lingua_loop.constants import STATIC_DIR
@@ -15,6 +16,7 @@ from lingua_loop.db.session import create_db_and_tables
 from lingua_loop.db.session import get_engine_and_session_maker
 from lingua_loop.db.session import shutdown
 from lingua_loop.exceptions import TranscriptNotFoundError
+from lingua_loop.integrations.youtube.types import language_code_to_language
 
 
 @asynccontextmanager
@@ -37,10 +39,18 @@ def create_app() -> FastAPI:
         )
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
     @app.get("/", include_in_schema=False)
-    def index():
-        return FileResponse(Path(f"{TEMPLATES_DIR}/index.html"))
+    def index(request: Request):
+        # NOTE: maybe just do regular dict instead of list of dicts??
+        languages: List[Dict] = [
+            {"language_code": language_code.value, "language": language.value}
+            for language_code, language in language_code_to_language.items()
+        ]
+        return templates.TemplateResponse(
+            request, "index.html", {"languages": languages}
+        )
 
     app.include_router(transcript.router)
 

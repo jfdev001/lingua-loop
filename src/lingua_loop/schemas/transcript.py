@@ -23,9 +23,7 @@ class ScoreRequest(BaseModel):
     video_id: str = Field(min_length=1)
     segment_indices: List[int] = Field(min_length=1)
     user_text: str = Field(min_length=1)
-    language_code: (
-        SupportedLanguageCodes  # TODO: does it make sense to have this?
-    )
+    language_code: SupportedLanguageCodes
 
 
 class ScoreResponse(BaseModel):
