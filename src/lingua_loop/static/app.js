@@ -11,23 +11,23 @@
 
 /**
  * @typedef {Object} TranscriptResponse
- * @property {string} videoId
+ * @property {string} video_id
  * @property {Segment[]} segments
- * @property {boolean} isGenerated
+ * @property {boolean} is_generated
  */
 
 /**
   * @typedef {Object} ScoreRequest
-  * @property {string} videoId
-  * @property {number[]} segmentIndices
-  * @property {string} userText
-  * @property {string} languageCode
+  * @property {string} video_id
+  * @property {number[]} segment_indices
+  * @property {string} user_text
+  * @property {string} language_code
   */
 
 /**
  * @typedef {Object} ScoreResponse
  * @property {number} score
- * @property {string} referenceText
+ * @property {string} reference_text
  */
 
 
@@ -445,10 +445,40 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   async function handleScore() {
-    // send user input to backend
+    // Must be in transcription mode to score!
+    if (!state.isTranscribing) {
+      return;
+    }
+    // make payload
     /** @type {ScoreRequest} */
-    let payload = null;
-    // update reference text
+    let payload = {};
+
+    /** @type {HTMLTextAreaElement} */
+    const userTextArea = document.getElementById("userText");
+    payload.user_text = userTextArea.value;
+    payload.segment_indices = state.segmentIndices;
+    payload.video_id = state.videoId;
+    payload.language_code = state.languageCode;
+
+    // compute score
+    const scoreResponse = await scoreTranscript(payload);
+    if (scoreResponse == null) {
+      alert("Something went wrong when scoring... no score compute")
+      return;
+    }
+
+    console.log(scoreResponse);
+    const score = Number(scoreResponse.score).toPrecision(2);
+
+    // TODO: this just puts the score into the reference text area for now...
+    /** @type {HTMLTextAreaElement} */
+    const referenceTextArea = document.getElementById("referenceText");
+    referenceTextArea.readOnly = false;
+    const referenceText = scoreResponse.reference_text.replace(/\r?\n/g, " ");
+    referenceTextArea.value = `Your score is ${score}/1.0! The reference text is:\n${referenceText}
+    `
+    referenceTextArea.readOnly = true;
+    return;
   }
 
   // -------------------
@@ -535,11 +565,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /**
     * @param {ScoreRequest} payload
-    * @returns {Promise<ScoreResponse>}
+    * @returns {Promise<ScoreResponse> | null}
     */
   async function scoreTranscript(payload) {
     const resp = await fetchScoreTranscript(payload);
-    return resp.json();
+    const data = await resp.json();
+    if (!resp.ok) {
+      console.log(data)
+      return null;
+    }
+    return data;
   }
 
   /**
@@ -581,11 +616,6 @@ window.addEventListener("DOMContentLoaded", () => {
     .addEventListener("change", handleSpeedChange);
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === " ") {
-      e.preventDefault();
-      togglePlayPause();
-    }
-
     let nextTime = null;
     if (e.key === "ArrowRight") {
       nextTime = state.player.getCurrentTime() + videoConfiguration.skipIntervalInSeconds
@@ -645,4 +675,8 @@ window.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("toggleStartTranscriptionBtn")
     .addEventListener("click", handleToggleStartTranscription)
+
+  document
+    .getElementById("scoreBtn")
+    .addEventListener("click", handleScore)
 })
