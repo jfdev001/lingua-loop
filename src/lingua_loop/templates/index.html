@@ -15,7 +15,7 @@
     <div class="app">
         <h1>LinguaLoop</h1>
         <!-- Language radio buttons -->
-        <form>
+        <form id="languageToTranscribeForm">
             <label>Language to Transcribe:</label><br>
             {% for language, language_code in language_to_language_code.items() %}
             <label>
@@ -92,17 +92,15 @@
           </div>  <!-- video wrapper -->
         </div> <!-- player card -->
 
-        <!-- n segments -->
-        <!-- TODO: you should specify total num seconds and fuzzy match the num segments!-->
+        <!-- n seconds -->
         <div style="margin-top: 20px;">
-            <label for="numSegments">Number of segments to transcribe:</label><br><br>
+            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how much of the video in seconds do you want to transcribe?:</label><br><br>
 
             <input
                 type="number"
-                id="numSegments"
+                id="numSecondsOfVideoToTranscribe"
                 min="1"
-                step="1"
-                value="1"
+                value="5"
                 style="width: 80px; padding: 6px;"
             />
         </div>

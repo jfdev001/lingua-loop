@@ -135,6 +135,11 @@ window.addEventListener("DOMContentLoaded", () => {
     videoConfiguration.volumeSlider.addEventListener("input", handleVolume);
     videoConfiguration.seekBar.addEventListener("input", handleSeek);
 
+    /** @type {HTMLInputElement} */
+    const numSecondsOfVideoToTranscribe = document.getElementById(
+      "numSecondsOfVideoToTranscribe")
+    numSecondsOfVideoToTranscribe.max = videoConfiguration.duration
+
     updateSliderFill(videoConfiguration.seekBar);
     updateSliderFill(videoConfiguration.volumeSlider);
     setInterval(updateProgress, 500);
@@ -241,6 +246,21 @@ window.addEventListener("DOMContentLoaded", () => {
   // Other Event Handlers
   // -------------------
 
+  function handleLanguageToTranscribeUpdate() {
+    const form = this;
+    const selectedRadio = form.elements["language"];
+
+    for (const radio of selectedRadio) {
+      if (radio.checked) {
+        console.log("Selected language code:", radio.value);
+        state.languageCode = radio.value;
+        console.log(state.languageCode);
+        break;
+      }
+    }
+    return;
+  }
+
   async function handleLoadVideo() {
     /** @type { HTMLInputElement } */
     const videoUrlEle = document.getElementById("videoUrl");
@@ -265,16 +285,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const transcript = await getTranscript(state.videoId, state.languageCode);
     loadVideoBtn.disabled = false;
 
-    // TODO: handle when bad transcript?? could be from no transcript found
-    // due to language code
-    let goodTranscript = true;
-    state.transcript = transcript;
-
-    if (goodTranscript) {
-      videoUrlEle.value = ""; // TODO: rename this!
+    console.log(transcript); // TODO: debug
+    if (transcript) {
+      videoUrlEle.value = ""; // TODO: rename this
+    } else {
+      alert(`
+        No transcript found.
+        Make sure the 'Language to Transcribe' matches the language in the video!
+      `)
+      return;
     }
 
-    console.log(transcript); // TODO: debug
+    state.transcript = transcript;
     return;
   }
 
@@ -317,23 +339,43 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
+  function replaceNonNumericInput() {
+    const input = this;
+    input.value = input.value.replace(/[^0-9]/g, "");
+    return;
+  }
+
+  function constrainToMaxDuration() {
+    const input = this;
+    if (input.value > videoConfiguration.duration) {
+      input.value = videoConfiguration.duration
+    }
+  }
+
   // -------------------
   // API Calls
   // -------------------
 
   /**
-    * @returns {Promise<TranscriptResponse>}
+    * @returns {Promise<TranscriptResponse> | null}
     */
   async function getTranscript(videoId, languageCode) {
     const resp = await fetchTranscript(videoId, languageCode)
-    return resp.json();
+    const data = await resp.json();
+    if (!resp.ok) {
+      console.log(data);
+      return null;
+    }
+    return data;
   }
 
   /**
     * @returns {Promise<Response>}
     */
   async function fetchTranscript(videoId, languageCode) {
-    return await fetch(`/api/transcript/${videoId}/${languageCode}`);
+    const resp = await fetch(`/api/transcript/${videoId}/${languageCode}`);
+    return resp;
   }
 
 
@@ -378,9 +420,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document
     .getElementById("muteBtn")
-    .addEventListener("click", function() {
-      toggleMute.call(this);
-    });
+    .addEventListener("click", toggleMute);
 
   document
     .getElementById("playbackSpeed")
@@ -404,7 +444,20 @@ window.addEventListener("DOMContentLoaded", () => {
     if (e.key === "m") toggleMute.call(document.getElementById("muteBtn"));
   });
 
+  document
+    .getElementById("numSecondsOfVideoToTranscribe")
+    .addEventListener("input", replaceNonNumericInput)
+
+  document
+    .getElementById("numSecondsOfVideoToTranscribe")
+    .addEventListener("input", constrainToMaxDuration)
+
   // API stuff
+
+  document
+    .getElementById("languageToTranscribeForm")
+    .addEventListener("change", handleLanguageToTranscribeUpdate)
+
   document
     .getElementById("loadVideoBtn")
     .addEventListener("click", handleLoadVideo);

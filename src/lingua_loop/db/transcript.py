@@ -32,6 +32,11 @@ async def read_or_create_transcript_with_segments(
 async def _read_transcript_with_segments(
     video_id: str, session: AsyncSession
 ) -> Transcript | None:
+    """
+    NOTE: Since this does not check the language code, even if client
+    sends a request with the incorrect language code, if the transcript
+    is already cached locally, then they will get a valid transcript response.
+    """
     result = await session.execute(
         select(Transcript)
         .options(selectinload(Transcript.segments))
