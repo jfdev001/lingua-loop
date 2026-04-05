@@ -31,8 +31,30 @@
  */
 
 
+// ----------
+// Youtube Types
+// ----------
+
+// https://developers.google.com/youtube/iframe_api_reference#onStateChange
+/**
+ * @typedef {(
+ *   typeof YT.PlayerState.ENDED |
+ *   typeof YT.PlayerState.PLAYING |
+ *   typeof YT.PlayerState.PAUSED |
+ *   typeof YT.PlayerState.BUFFERING |
+ *   typeof YT.PlayerState.CUED
+ * )} PlayerStateData
+ */
+
+// ----------
+// Configuration
+// ----------
 const { language_to_language_code } = window.APP_CONFIG;
 
+
+// ----------
+// Application
+// ----------
 window.addEventListener("DOMContentLoaded", () => {
   const defaultBbcEnglishLearningVideoId = "Tefu_NvcC0k" // no affiliation
   const defaultLanguageCode = "en"
@@ -56,17 +78,13 @@ window.addEventListener("DOMContentLoaded", () => {
       width: '640',
       videoId: state.videoId,
       playerVars: {
-        'playsinline': 1,
         'autoplay': 0,
         'rel': 0,
         'cc_load_policy': 0,
         'controls': 0,
       },
+      events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
     });
-  }
-
-  const videoConfiguration = {
-    duration: 0,
   }
 
 
@@ -74,8 +92,149 @@ window.addEventListener("DOMContentLoaded", () => {
   tag.src = "https://www.youtube.com/iframe_api";
   document.head.appendChild(tag);
 
+
+  // NOTE: could add parameter for set skip interval (default to e.g., 3 seconds)
+  const videoConfiguration = {
+    duration: 0,
+    lastVolume: 80,
+    /** @type {HTMLInputElement} */ seekBar: null,
+    /** @type {HTMLInputElement} */ volumeSlider: null
+  }
+
+
+  /**
+    * @param {{ data: PlayerStateData }} event
+    */
+  function onPlayerStateChange(event) {
+    const btn = document.getElementById("playPauseBtn");
+    const overlay = document.getElementById("overlayPlay");
+    if (event.data === YT.PlayerState.PLAYING) {
+      btn.innerHTML = '<i class="fas fa-pause"></i>';
+      overlay.style.opacity = "0";
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      btn.innerHTML = '<i class="fas fa-play"></i>';
+      overlay.style.opacity = "1";
+    }
+  }
+
+
+  function onPlayerReady() {
+    try {
+      state.player.setVolume(videoConfiguration.lastVolume);
+    } catch (e) { }
+    state.player.unMute();
+
+    videoConfiguration.duration = state.player.getDuration();
+    document.getElementById("duration").textContent = formatTime(
+      videoConfiguration.duration);
+
+    videoConfiguration.seekBar = document.getElementById("seekBar");
+    videoConfiguration.volumeSlider = document.getElementById("volumeSlider");
+    videoConfiguration.volumeSlider.value = videoConfiguration.lastVolume;
+
+    videoConfiguration.volumeSlider.addEventListener("input", handleVolume);
+    videoConfiguration.seekBar.addEventListener("input", handleSeek);
+
+    updateSliderFill(videoConfiguration.seekBar);
+    updateSliderFill(videoConfiguration.volumeSlider);
+    setInterval(updateProgress, 500);
+  }
+
+
+  function handleSeek(e) {
+    state.player.seekTo((e.target.value / 100) * videoConfiguration.duration, true);
+    updateSliderFill(videoConfiguration.seekBar);
+  }
+
+
+  function updateSliderFill(slider) {
+    const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.background = `linear-gradient(to right, #c8ff00 ${pct}%, rgba(240,237,230,0.12) ${pct}%)`;
+  }
+
+
+  function handleVolume(e) {
+    const v = parseInt(e.target.value);
+    videoConfiguration.lastVolume = v;
+    try {
+      if (v === 0) {
+        state.player.mute();
+        document.getElementById("muteBtn").innerHTML =
+          '<i class="fas fa-volume-xmark"></i>';
+      } else {
+        state.player.unMute();
+        state.player.setVolume(v);
+        document.getElementById("muteBtn").innerHTML =
+          '<i class="fas fa-volume-high"></i>';
+      }
+    } catch (e) { }
+    updateSliderFill(videoConfiguration.volumeSlider);
+  }
+
+
+  function toggleMute() {
+    const btn = this;
+    try {
+      if (state.player.isMuted()) {
+        state.player.unMute();
+        btn.innerHTML = '<i class="fas fa-volume-high"></i>';
+        videoConfiguration.volumeSlider.value = videoConfiguration.lastVolume;
+        state.player.setVolume(videoConfiguration.lastVolume);
+      } else {
+        videoConfiguration.lastVolume = videoConfiguration.volumeSlider.value;
+        state.player.mute();
+        btn.innerHTML = '<i class="fas fa-volume-xmark"></i>';
+        videoConfiguration.volumeSlider.value = 0;
+      }
+    } catch (e) { }
+    updateSliderFill(videoConfiguration.volumeSlider);
+  }
+
+
+  function updateProgress() {
+    if (!state.player || !state.player.getCurrentTime) return;
+    const current = state.player.getCurrentTime();
+    document.getElementById("currentTime").textContent = formatTime(current);
+    // console.log(current)
+    // console.log(videoConfiguration.duration)
+    videoConfiguration.seekBar.value = (current / videoConfiguration.duration) * 100;
+    updateSliderFill(videoConfiguration.seekBar);
+  }
+
+
+  function togglePlayPause() {
+    const playerState = state.player.getPlayerState();
+    const overlay = document.getElementById("overlayPlay");
+    const btn = document.getElementById("playPauseBtn");
+    if (playerState === YT.PlayerState.PLAYING) {
+      state.player.pauseVideo();
+      overlay.style.opacity = "1";
+      btn.innerHTML = '<i class="fas fa-play"></i>';
+    } else {
+      state.player.playVideo();
+      overlay.style.opacity = "0";
+      btn.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+  }
+
+
+  function handleSnapToSegment() {
+    // validate segment count
+    // seek player (should use the seekTo based on the second mark..)
+    // toggle transcription mode (free scrollable or not on player...)
+  }
+
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const ss = Math.floor(s % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${m}:${ss}`;
+  }
+
   // -------------------
-  // Event Handlers
+  // Other Event Handlers
   // -------------------
 
   async function handleLoadVideo() {
@@ -113,12 +272,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     console.log(transcript); // TODO: debug
     return;
-  }
-
-  function handleSnapToSegment() {
-    // validate segment count
-    // seek player (should use the seekTo based on the second mark..)
-    // toggle transcription mode (free scrollable or not on player...)
   }
 
   async function handleScore() {
@@ -209,6 +362,23 @@ window.addEventListener("DOMContentLoaded", () => {
   // Wire up DOM
   // -------------------
 
+  // Youtube stuff
+
+  document
+    .getElementById("playPauseBtn")
+    .addEventListener("click", togglePlayPause);
+
+  document
+    .getElementById("overlayPlay")
+    .addEventListener("click", togglePlayPause);
+
+  document
+    .getElementById("muteBtn")
+    .addEventListener("click", function() {
+      toggleMute.call(this);
+    });
+
+  // API stuff
   document
     .getElementById("loadVideoBtn")
     .addEventListener("click", handleLoadVideo);
@@ -216,4 +386,6 @@ window.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("startTranscriptionBtn")
     .addEventListener("click", handleSnapToSegment);
+
+
 })
