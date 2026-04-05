@@ -93,12 +93,12 @@ window.addEventListener("DOMContentLoaded", () => {
   document.head.appendChild(tag);
 
 
-  // NOTE: could add parameter for set skip interval (default to e.g., 3 seconds)
   const videoConfiguration = {
     duration: 0,
     lastVolume: 80,
     /** @type {HTMLInputElement} */ seekBar: null,
-    /** @type {HTMLInputElement} */ volumeSlider: null
+    /** @type {HTMLInputElement} */ volumeSlider: null,
+    skipIntervalInSeconds: 3     // TODO: could make modifiable
   }
 
 
@@ -217,6 +217,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
+  function handleSpeedChange(e) {
+    state.player.setPlaybackRate(parseFloat(e.target.value));
+  }
 
   function handleSnapToSegment() {
     // validate segment count
@@ -377,6 +381,28 @@ window.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", function() {
       toggleMute.call(this);
     });
+
+  document
+    .getElementById("playbackSpeed")
+    .addEventListener("change", handleSpeedChange);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === " ") {
+      e.preventDefault();
+      togglePlayPause();
+    }
+    if (e.key === "ArrowRight")
+      state.player.seekTo(
+        state.player.getCurrentTime() + videoConfiguration.skipIntervalInSeconds,
+        true
+      );
+    if (e.key === "ArrowLeft")
+      state.player.seekTo(
+        state.player.getCurrentTime() - videoConfiguration.skipIntervalInSeconds,
+        true
+      );
+    if (e.key === "m") toggleMute.call(document.getElementById("muteBtn"));
+  });
 
   // API stuff
   document
