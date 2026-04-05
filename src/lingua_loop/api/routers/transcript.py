@@ -36,7 +36,9 @@ async def get_transcript(
     segments = _segments_to_schema(segments=transcript.segments)
 
     transcript_response = TranscriptResponse(
-        video_id=video_id, segments=segments
+        video_id=video_id,
+        segments=segments,
+        is_generated=transcript.is_generated,
     )
     return transcript_response
 

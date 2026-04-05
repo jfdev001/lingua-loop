@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-lingualoop = "lingua_loop.scripts.run:run"
+lingua-loop = "lingua_loop.scripts.run:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]

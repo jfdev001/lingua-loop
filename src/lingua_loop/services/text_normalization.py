@@ -54,6 +54,10 @@ class TextNormalizer(ABC):
 
 class GenericNormalizer(TextNormalizer):
     def normalize_accents(self, text: str) -> str:
+        """TODO: unicodeata.combined here to remove special characters...
+
+        TODO: Will this break anyhing??? Lui è comico, write test case for this
+        """
         return text
 
 
