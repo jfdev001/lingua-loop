@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>LinguaLoop</title>
     <link rel="icon" href="/static/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-    <h1>LinguaLoop</h1>
-
     <div class="app">
+        <h1>LinguaLoop</h1>
         <!-- Language radio buttons -->
         <form>
             <label>Language to Transcribe:</label><br>
@@ -30,8 +31,7 @@
         <div>
             <label for="videoUrl">Enter YouTube Video URL:</label><br>
 
-            <input type="text" id="videoUrl" placeholder="Paste YouTube link here..."
-                style="width: 400px; padding: 8px;" />
+            <input class="myVideoUrlInput" type="text" id="videoUrl" placeholder="Paste YouTube link here..."/>
 
             <button id="loadVideoBtn">
                 Load Video
@@ -43,8 +43,54 @@
           ⏳ Loading transcripts...
         </div>
 
-        <!-- Video player  -->
-        <div id="player"></div>
+        <!-- Video -->
+        <div class="player-card">
+          <div class="video-wrapper">
+            <div id="player"></div>
+            <div class="overlay-play" id="overlayPlay">
+              <i class="fas fa-play"></i>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-bar">
+
+              <button id="playPauseBtn" class="btn" title="Play / Pause (Space)">
+                <i class="fas fa-play"></i>
+              </button>
+
+              <div class="ctrl-sep"></div>
+
+              <div class="volume-container">
+                <button id="muteBtn" class="btn" title="Mute (M)">
+                  <i class="fas fa-volume-high"></i>
+                </button>
+                <input type="range" id="volumeSlider" class="slider" min="0" max="100" value="100" />
+              </div>
+
+              <div class="ctrl-sep"></div>
+
+              <div class="seek-container">
+                <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" />
+              </div>
+
+              <span class="time">
+                <span id="currentTime">0:00</span>
+                <span>/</span>
+                <span id="duration">0:00</span>
+              </span>
+
+              <div class="ctrl-sep"></div>
+
+              <select id="playbackSpeed" class="control-select" title="Playback speed">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.5">1.5×</option>
+                <option value="2">2×</option>
+              </select>
+
+            </div> <!-- controls bar -->
+          </div>  <!-- video wrapper -->
+        </div> <!-- player card -->
 
         <!-- n segments -->
         <!-- TODO: you should specify total num seconds and fuzzy match the num segments!-->
@@ -82,8 +128,7 @@
             <textarea id="referenceText" placeholder="Reference text will appear here..." rows="3" cols="60"
                 readonly></textarea>
         </div>
-
-    </div>
+    </div> <!-- app -->
 
     <script>
         window.APP_CONFIG = {
@@ -92,5 +137,4 @@
     </script>
     <script src="/static/app.js"></script>
 </body>
-
 </html>

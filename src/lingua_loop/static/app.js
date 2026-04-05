@@ -59,10 +59,16 @@ window.addEventListener("DOMContentLoaded", () => {
         'playsinline': 1,
         'autoplay': 0,
         'rel': 0,
-        'cc_load_policy': 0
+        'cc_load_policy': 0,
+        'controls': 0,
       },
     });
   }
+
+  const videoConfiguration = {
+    duration: 0,
+  }
+
 
   const tag = document.createElement("script");
   tag.src = "https://www.youtube.com/iframe_api";

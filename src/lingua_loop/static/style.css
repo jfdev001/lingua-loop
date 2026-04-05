@@ -1,6 +1,327 @@
 .app > * {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.myVideoUrlInput {
+    width: 400px;
+    padding: 8px
+}
+
+/* https://codepen.io/PixelPerfectLabs/pen/PwwrJge */
+:root {
+  --bg: #0a0a0a;
+  --surface: rgba(240, 237, 230, 0.03);
+  --surface-hi: rgba(240, 237, 230, 0.06);
+  --border: rgba(240, 237, 230, 0.07);
+  --border-hi: rgba(240, 237, 230, 0.15);
+  --text: rgba(240, 237, 230, 0.9);
+  --text-dim: rgba(240, 237, 230, 0.38);
+  --accent: #c8ff00;
+  --accent-dim: rgba(200, 255, 0, 0.08);
+  --accent-border: rgba(200, 255, 0, 0.28);
+  --bad: #ff4545;
+  --fd: "Bebas Neue", sans-serif;
+  --fm: "DM Mono", monospace;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--fm);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 40px);
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ——— Player card ——— */
+.player-card {
+  position: relative;
+  z-index: 1;
+  width: min(820px, 100%);
+  border: 1px solid var(--border-hi);
+  background: #0c0c0c;
+  overflow: hidden;
+}
+
+/* Top accent */
+.player-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  z-index: 10;
+}
+
+/* ——— Notice bar ——— */
+.notice-bar {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(200, 255, 0, 0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.notice-icon {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.notice-text {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.notice-text strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+/* ——— Video wrapper ——— */
+.video-wrapper {
+  position: relative;
+  background: #000;
+}
+
+#player {
+  width: 100%;
+  min-height: 420px;
+  display: block;
+  pointer-events: none;
+}
+
+/* Overlay play button */
+.overlay-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--border-hi);
+  background: rgba(10, 10, 10, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s, background 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 3;
+}
+.overlay-play i {
+  font-size: 22px;
+  color: var(--accent);
+  margin-left: 3px;
+}
+.overlay-play:hover {
+  background: rgba(10, 10, 10, 0.9);
+}
+
+/* ——— Controls bar ——— */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 52px;
+  background: #0c0c0c;
+  border-top: 1px solid var(--border);
+  gap: 8px;
+}
+
+/* Icon buttons */
+.btn {
+  font-family: var(--fm);
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.btn:hover {
+  color: var(--accent);
+}
+
+/* Volume group */
+.volume-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.volume-container .slider {
+  width: 72px;
+}
+
+/* Seek bar */
+.seek-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.seek-container .slider {
+  width: 100%;
+}
+
+/* Sliders */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0%,
+    rgba(240, 237, 230, 0.12) 0%
+  );
+  outline: none;
+  cursor: pointer;
+  transition: height 0.15s;
+}
+.slider:hover {
+  height: 4px;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* Time display */
+.time {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.time #currentTime {
+  color: var(--accent);
+}
+
+/* Speed select */
+.control-select {
+  font-family: var(--fm);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 5px 8px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.control-select:hover {
+  border-color: var(--border-hi);
+  color: var(--text);
+}
+.control-select option {
+  background: #141414;
+  color: var(--text);
+}
+
+/* Separator dot */
+.ctrl-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Fullscreen btn */
+.fullscreen-btn {
+  font-family: var(--fm);
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.fullscreen-btn:hover {
+  color: var(--accent);
+}
+
+/* Fullscreen mode */
+.player-card:-webkit-full-screen {
+  width: 100% !important;
+  height: 100% !important;
+}
+.player-card:fullscreen {
+  width: 100% !important;
+  height: 100% !important;
+}
+.player-card:-webkit-full-screen #player {
+  min-height: calc(100vh - 52px);
+}
+.player-card:fullscreen #player {
+  min-height: calc(100vh - 52px);
 }
 
 /* Placeholder css for buttons */
