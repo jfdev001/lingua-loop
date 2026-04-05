@@ -67,6 +67,10 @@ window.addEventListener("DOMContentLoaded", () => {
     segmentIndices: [],
     videoId: defaultBbcEnglishLearningVideoId,
     isTranscribing: false,
+    /** @type {number} */
+    startTranscriptionTime: null,
+    /** @type {number} */
+    stopTranscriptionTime: null,
     languageCode: defaultLanguageCode
   };
 
@@ -152,6 +156,9 @@ window.addEventListener("DOMContentLoaded", () => {
     const transcript = await getTranscript(state.videoId, state.languageCode);
     state.transcript = transcript;
 
+    // Disable the transcription until snap has occurred
+    document.getElementById("toggleStartTranscriptionBtn").disabled = true
+
     // update sliders
     updateSliderFill(videoConfiguration.seekBar);
     updateSliderFill(videoConfiguration.volumeSlider);
@@ -218,7 +225,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function updateProgress() {
     if (!state.player || !state.player.getCurrentTime) return;
-    const current = state.player.getCurrentTime();
+    let current = state.player.getCurrentTime();
+
+    // Prevent time from exceeding bounds of desired segments while transcribing
+    if (state.isTranscribing && current > state.stopTranscriptionTime) {
+      state.player.seekTo(state.stopTranscriptionTime, true)
+      state.player.pauseVideo();
+      current = state.player.getCurrentTime();
+    }
+
+    if (state.isTranscribing && current < state.startTranscriptionTime) {
+      state.player.seekTo(state.startTranscriptionTime, true)
+      state.player.pauseVideo();
+      current = state.player.getCurrentTime();
+    }
+
     document.getElementById("currentTime").textContent = formatTime(current);
     videoConfiguration.seekBar.value = (current / videoConfiguration.duration) * 100;
     updateSliderFill(videoConfiguration.seekBar);
@@ -250,11 +271,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
   function handleSnapToSegment() {
+    /** @type {HTMLButtonElement} */
+    const snapToSegmentBtn = this;
+    if (snapToSegmentBtn.disabled) {
+      return;
+    }
+
     const numSecondsOfVideoToTranscribe = Number(
       document
         .getElementById("numSecondsOfVideoToTranscribe")
         .value
     );
+
     const segments = state.transcript.segments;
     const currentTimeInSeconds = state.player.getCurrentTime();
     const indexOfStartSegment = getIndexOfStartSegment(
@@ -262,6 +290,7 @@ window.addEventListener("DOMContentLoaded", () => {
       currentTimeInSeconds
     );
     const startSegment = segments[indexOfStartSegment];
+
     state.player.seekTo(startSegment.start, true);
     state.player.pauseVideo();
     state.segmentIndices = getSegmentIndices(
@@ -270,6 +299,9 @@ window.addEventListener("DOMContentLoaded", () => {
       numSecondsOfVideoToTranscribe
     );
     console.log(state.segmentIndices);
+
+    // enables transcription once you've got valid indices
+    document.getElementById("toggleStartTranscriptionBtn").disabled = false
     return;
   }
 
@@ -317,6 +349,35 @@ window.addEventListener("DOMContentLoaded", () => {
       index += 1;
     }
     return segmentIndices;
+  }
+
+
+  function handleToggleStartTranscription() {
+    /** @type {HTMLButtonElement} */
+    const toggleStartTranscriptionBtn = this;
+    /** @type {HTMLButtonElement} */
+    const snapToSegmentBtn = document.getElementById("snapToSegmentBtn");
+
+    const segments = state.transcript.segments;
+    const segmentIndices = state.segmentIndices;
+    if (state.isTranscribing) {
+      toggleStartTranscriptionBtn.innerHTML = "Start Transcribing"
+      snapToSegmentBtn.disabled = false;
+      state.isTranscribing = false;
+    } else {
+      toggleStartTranscriptionBtn.innerHTML = "Stop Transcribing";
+      snapToSegmentBtn.disabled = true;
+      state.isTranscribing = true;
+
+      // update the transcription times to limit whre the user can seek
+      // and skip
+      const firstSegment = segments[segmentIndices[0]]
+      state.startTranscriptionTime = firstSegment.start;
+
+      const lastSegment = segments[segmentIndices[segmentIndices.length - 1]]
+      state.stopTranscriptionTime = lastSegment.start + lastSegment.duration;
+    }
+    return;
   }
 
 
@@ -429,10 +490,20 @@ window.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  function constrainToMaxDuration() {
+  function constrainMaximumNumSecondsToTranscribe() {
+    /** @type {HTMLInputElement} */
     const input = this;
-    if (input.value > videoConfiguration.duration) {
-      input.value = videoConfiguration.duration
+    if (Number(input.value) > videoConfiguration.duration) {
+      input.value = String(videoConfiguration.duration)
+    }
+  }
+
+
+  function constrainMinimumNumSecondsToTranscribe() {
+    /** @type {HTMLInputElement} */
+    const input = this;
+    if (Number(input.value) < Number(input.min)) {
+      input.value = input.min
     }
   }
 
@@ -491,7 +562,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Wire up DOM
   // -------------------
 
-  // Youtube stuff
+  // Youtube player stuff
 
   document
     .getElementById("playPauseBtn")
@@ -514,17 +585,31 @@ window.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       togglePlayPause();
     }
-    if (e.key === "ArrowRight")
-      state.player.seekTo(
-        state.player.getCurrentTime() + videoConfiguration.skipIntervalInSeconds,
-        true
-      );
-    if (e.key === "ArrowLeft")
-      state.player.seekTo(
-        state.player.getCurrentTime() - videoConfiguration.skipIntervalInSeconds,
-        true
-      );
-    if (e.key === "m") toggleMute.call(document.getElementById("muteBtn"));
+
+    let nextTime = null;
+    if (e.key === "ArrowRight") {
+      nextTime = state.player.getCurrentTime() + videoConfiguration.skipIntervalInSeconds
+
+      if (state.isTranscribing && nextTime > state.stopTranscriptionTime) {
+        nextTime = state.stopTranscriptionTime;
+      }
+
+      state.player.seekTo(nextTime, true);
+    }
+
+    if (e.key === "ArrowLeft") {
+      nextTime = state.player.getCurrentTime() - videoConfiguration.skipIntervalInSeconds
+
+      if (state.isTranscribing && nextTime < state.startTranscriptionTime) {
+        nextTime = state.startTranscriptionTime;
+      }
+
+      state.player.seekTo(nextTime, true);
+    }
+
+    if (e.key === "m") {
+      toggleMute.call(document.getElementById("muteBtn"));
+    }
 
     if (e.shiftKey && e.key.toLowerCase() === "s") {
       handleSnapToSegment();
@@ -537,9 +622,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document
     .getElementById("numSecondsOfVideoToTranscribe")
-    .addEventListener("input", constrainToMaxDuration)
+    .addEventListener("input", constrainMaximumNumSecondsToTranscribe)
 
-  // API stuff
+  document
+    .getElementById("numSecondsOfVideoToTranscribe")
+    .addEventListener("mouseleave", constrainMinimumNumSecondsToTranscribe)
+
+  // All other event wiring
 
   document
     .getElementById("languageToTranscribeForm")
@@ -550,8 +639,10 @@ window.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", handleLoadVideo);
 
   document
-    .getElementById("startTranscriptionBtn")
+    .getElementById("snapToSegmentBtn")
     .addEventListener("click", handleSnapToSegment);
 
-
+  document
+    .getElementById("toggleStartTranscriptionBtn")
+    .addEventListener("click", handleToggleStartTranscription)
 })

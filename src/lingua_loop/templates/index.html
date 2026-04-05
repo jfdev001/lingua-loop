@@ -94,21 +94,30 @@
 
         <!-- n seconds -->
         <div style="margin-top: 20px;">
-            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how much of the video in seconds do you want to transcribe?:</label><br><br>
+            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how much of the video in seconds (minimum 5 seconds) do you want to transcribe?:</label><br><br>
 
             <input
                 type="number"
                 id="numSecondsOfVideoToTranscribe"
-                min="1"
+                min="5"
                 value="5"
                 style="width: 80px; padding: 6px;"
             />
         </div>
 
-        <!-- Ready to transcribe -->
-        <button id="startTranscriptionBtn" class="primary-btn">
-            ▶️ Snap to Segment & Transcribe
-        </button>
+        <!-- Snap to earliest possible transcription segment in video -->
+        <div>
+            <button id="snapToSegmentBtn" class="primary-btn">
+                Snap to Segment
+            </button>
+        </div>
+
+        <!-- Snap to earliest possible transcription segment in video -->
+        <div>
+            <button id="toggleStartTranscriptionBtn" class="primary-btn">
+                Start Transcribing
+            </button>
+        </div>
 
         <!-- Transcript input -->
         <div>
