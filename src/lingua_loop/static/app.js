@@ -11,23 +11,23 @@
 
 /**
  * @typedef {Object} TranscriptResponse
- * @property {string} video_id
+ * @property {string} videoId
  * @property {Segment[]} segments
- * @property {boolean} is_generated
+ * @property {boolean} isGenerated
  */
 
 /**
   * @typedef {Object} ScoreRequest
-  * @property {string} video_id
-  * @property {number[]} segment_indices
-  * @property {string} user_text
-  * @property {string} language_code
+  * @property {string} videoId
+  * @property {number[]} segmentIndices
+  * @property {string} userText
+  * @property {string} languageCode
   */
 
 /**
  * @typedef {Object} ScoreResponse
  * @property {number} score
- * @property {string} reference_text
+ * @property {string} referenceText
  */
 
 
@@ -59,17 +59,23 @@ window.addEventListener("DOMContentLoaded", () => {
   const defaultBbcEnglishLearningVideoId = "Tefu_NvcC0k" // no affiliation
   const defaultLanguageCode = "en"
   const state = {
-    /** @type {YT.Player} */ player: null,
-    /** @type {TranscriptResponse} */ transcript: null,
+    /** @type {YT.Player} */
+    player: null,
+    /** @type {TranscriptResponse} */
+    transcript: null,
+    /** @type {number[]} */
+    segmentIndices: [],
     videoId: defaultBbcEnglishLearningVideoId,
-    currentSegment: 0,
     isTranscribing: false,
     languageCode: defaultLanguageCode
   };
 
+  window.myStateVar = state // TODO: debug
+
   // -------------------
   // Youtube player
   // https://developers.google.com/youtube/iframe_api_reference
+  // https://www.youtube.com/watch?v=lsu-g-_6i_A
   // -------------------
 
   window.onYouTubeIframeAPIReady = function() {
@@ -98,7 +104,7 @@ window.addEventListener("DOMContentLoaded", () => {
     lastVolume: 80,
     /** @type {HTMLInputElement} */ seekBar: null,
     /** @type {HTMLInputElement} */ volumeSlider: null,
-    skipIntervalInSeconds: 3     // TODO: could make modifiable
+    skipIntervalInSeconds: 3     // TODO: could make modifiable html ele
   }
 
 
@@ -115,10 +121,11 @@ window.addEventListener("DOMContentLoaded", () => {
       btn.innerHTML = '<i class="fas fa-play"></i>';
       overlay.style.opacity = "1";
     }
+    return;
   }
 
 
-  function onPlayerReady() {
+  async function onPlayerReady() {
     try {
       state.player.setVolume(videoConfiguration.lastVolume);
     } catch (e) { }
@@ -140,21 +147,32 @@ window.addEventListener("DOMContentLoaded", () => {
       "numSecondsOfVideoToTranscribe")
     numSecondsOfVideoToTranscribe.max = videoConfiguration.duration
 
+    // initialize the state variable transcript using the defaults
+    // TODO: maybe this should be called before iframe loaded???
+    const transcript = await getTranscript(state.videoId, state.languageCode);
+    state.transcript = transcript;
+
+    // update sliders
     updateSliderFill(videoConfiguration.seekBar);
     updateSliderFill(videoConfiguration.volumeSlider);
+
+    // Watch the progress bar and update it periodically with new value
     setInterval(updateProgress, 500);
+    return;
   }
 
 
   function handleSeek(e) {
     state.player.seekTo((e.target.value / 100) * videoConfiguration.duration, true);
     updateSliderFill(videoConfiguration.seekBar);
+    return;
   }
 
 
   function updateSliderFill(slider) {
     const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
     slider.style.background = `linear-gradient(to right, #c8ff00 ${pct}%, rgba(240,237,230,0.12) ${pct}%)`;
+    return;
   }
 
 
@@ -174,6 +192,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     } catch (e) { }
     updateSliderFill(videoConfiguration.volumeSlider);
+    return;
   }
 
 
@@ -193,6 +212,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     } catch (e) { }
     updateSliderFill(videoConfiguration.volumeSlider);
+    return;
   }
 
 
@@ -200,10 +220,9 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!state.player || !state.player.getCurrentTime) return;
     const current = state.player.getCurrentTime();
     document.getElementById("currentTime").textContent = formatTime(current);
-    // console.log(current)
-    // console.log(videoConfiguration.duration)
     videoConfiguration.seekBar.value = (current / videoConfiguration.duration) * 100;
     updateSliderFill(videoConfiguration.seekBar);
+    return;
   }
 
 
@@ -220,17 +239,84 @@ window.addEventListener("DOMContentLoaded", () => {
       overlay.style.opacity = "0";
       btn.innerHTML = '<i class="fas fa-pause"></i>';
     }
+    return;
   }
 
 
   function handleSpeedChange(e) {
     state.player.setPlaybackRate(parseFloat(e.target.value));
+    return;
   }
 
+
   function handleSnapToSegment() {
-    // validate segment count
-    // seek player (should use the seekTo based on the second mark..)
-    // toggle transcription mode (free scrollable or not on player...)
+    const numSecondsOfVideoToTranscribe = Number(
+      document
+        .getElementById("numSecondsOfVideoToTranscribe")
+        .value
+    );
+    const segments = state.transcript.segments;
+    const currentTimeInSeconds = state.player.getCurrentTime();
+    const indexOfStartSegment = getIndexOfStartSegment(
+      segments,
+      currentTimeInSeconds
+    );
+    const startSegment = segments[indexOfStartSegment];
+    state.player.seekTo(startSegment.start, true);
+    state.player.pauseVideo();
+    state.segmentIndices = getSegmentIndices(
+      segments,
+      indexOfStartSegment,
+      numSecondsOfVideoToTranscribe
+    );
+    console.log(state.segmentIndices);
+    return;
+  }
+
+  /**
+    * @param {Segment[]} segments
+    * @param {number} currentTimeInSeconds
+    * @returns {number | null}
+    */
+  function getIndexOfStartSegment(segments, currentTimeInSeconds) {
+    let indexOfStartSegment = segments.length - 1; // default to last segment
+    let start;
+    for (const [index, segment] of segments.entries()) {
+      start = segment.start;
+      if (start >= currentTimeInSeconds) {
+        indexOfStartSegment = index == 0 ? index : index - 1;
+        return indexOfStartSegment;
+      }
+    }
+    return indexOfStartSegment;
+  }
+
+
+  /**
+    * @param {Segment[]} segments
+    * @param {number} indexOfStartSegment
+    * @param {number} numSecondsOfVideoToTranscribe
+    * @returns {number[]}
+    */
+  function getSegmentIndices(segments, indexOfStartSegment, numSecondsOfVideoToTranscribe) {
+    let segmentIndices = [indexOfStartSegment];
+    let segment = segments[indexOfStartSegment];
+    let totalSegmentsDuration = segment.duration
+    const numSegments = segments.length;
+    let index = indexOfStartSegment + 1;
+    while (index < numSegments) {
+      segment = segments[index];
+      totalSegmentsDuration += segment.duration
+      // prevents overshooting the time the user wants to transcribe
+      // (i.e., enforcing undershooting, e.g., 5 seconds desired, you would
+      // get 4.72 seconds (undershot) instead of 8.72 secs (overshot)
+      if (totalSegmentsDuration >= numSecondsOfVideoToTranscribe) {
+        break;
+      }
+      segmentIndices.push(index);
+      index += 1;
+    }
+    return segmentIndices;
   }
 
 
@@ -252,9 +338,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     for (const radio of selectedRadio) {
       if (radio.checked) {
-        console.log("Selected language code:", radio.value);
         state.languageCode = radio.value;
-        console.log(state.languageCode);
         break;
       }
     }
@@ -285,7 +369,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const transcript = await getTranscript(state.videoId, state.languageCode);
     loadVideoBtn.disabled = false;
 
-    console.log(transcript); // TODO: debug
     if (transcript) {
       videoUrlEle.value = ""; // TODO: rename this
     } else {
