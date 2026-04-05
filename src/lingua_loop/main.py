@@ -44,12 +44,6 @@ def create_app() -> FastAPI:
         )
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-    # TODO: for debugging only
-    app.mount(
-        "/templates", StaticFiles(directory=TEMPLATES_DIR), name="templates"
-    )
-
     templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
     @app.get("/", include_in_schema=False)
