@@ -110,6 +110,7 @@
             <button id="snapToSegmentBtn" class="primary-btn">
                 Snap to Segment
             </button>
+            <span id="segmentTimeSpan"></span>
         </div>
 
         <!-- Snap to earliest possible transcription segment in video -->
@@ -119,10 +120,10 @@
             </button>
         </div>
 
-        <!-- Transcript input -->
+        <!-- User transcription area -->
         <div>
             <textarea
-                id="userText"
+                id="userTextArea"
                 placeholder="Type what you hear..."
                 rows="5"
                 cols="60"></textarea>
@@ -132,7 +133,7 @@
 
         <!-- Reference  -->
         <div>
-            <textarea id="referenceText" placeholder="Reference text will appear here..." rows="5" cols="60"
+            <textarea id="referenceTextArea" placeholder="Reference text will appear here..." rows="5" cols="60"
                 readonly></textarea>
         </div>
     </div> <!-- app -->
