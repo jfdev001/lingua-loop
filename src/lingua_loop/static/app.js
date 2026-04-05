@@ -525,6 +525,10 @@ window.addEventListener("DOMContentLoaded", () => {
         true
       );
     if (e.key === "m") toggleMute.call(document.getElementById("muteBtn"));
+
+    if (e.shiftKey && e.key.toLowerCase() === "s") {
+      handleSnapToSegment();
+    }
   });
 
   document
