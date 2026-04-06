@@ -16,11 +16,10 @@ into a single page web application. Here's how you use the app:
 
 The scoring algorithm uses [Gestalt pattern
 matching](https://en.wikipedia.org/wiki/Gestalt_pattern_matching), which
-essentially matches the longest common series of characters. For example,
-if you type "wikim<span style="color: red;">an</span>ia" but the official
-transcrit has "wikim<span style="color: red;">ed</span>ia", you would receive
-a score of 0.70 since despite the error, there are common characters that you
-correctly typed.
+essentially matches the longest common series of characters. For example, if
+you type "wikim$$\color{red}an$$ia" but the official transcrit has
+"wikim$$\color{red}ed$$ia", you would receive a score of 0.70 because, despite
+the error, there are common characters that you correctly typed.
 
 # Future Work
 
