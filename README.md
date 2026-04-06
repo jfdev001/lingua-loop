@@ -113,11 +113,19 @@ $ cd lingua-loop
 $ uv sync
 ```
 
-Extensive testing for the FastAPI backend is available and you should
-verify the tests pass on your machine:
+As a sanity check, you should verify the FastAPI backend tests pass:
 
 ```shell
 $ pytest -v tests/
+```
+
+There are tests to verify the outputs of the `youtube_transcript_api`
+dependency, however, these make requests to YouTube, and are therefore *not*
+run by default. You can run those tests if you want by including the `--slow`
+flag like:
+
+```shell
+$ pytest -v --slow tests/
 ```
 
 You should also make sure that your files are formatted according to
@@ -128,19 +136,10 @@ the fast git hook runner framework [prek](https://github.com/j178/prek):
 $ prek install
 ```
 
-There are tests to verify the outputs of the `youtube_transcript_api`
-dependency, however, these make requests to YouTube, and are therefore *not*
-run by default. You can run those tests if you want by including the `--slow`
-flag like
-
-```shell
-$ pytest -v --slow tests/
-```
-
-If you'd like to contribute, consider opening an issue or addressing one
-of the issues already available. You should fork the project first before
-contributing. Pull requests should come from branches with the following
-structure:
+If you'd like to contribute, consider opening an issue first and/or addressing
+one of the issues already available. AI contributions will **not** be accepted.
+You should fork the project first before contributing. Pull requests should
+come from branches with the following structure:
 
 ```
 <name>/<issue-number-if-applicable>-<feature-description>
