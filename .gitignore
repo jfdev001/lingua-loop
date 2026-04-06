@@ -6,8 +6,15 @@ dist/
 wheels/
 *.egg-info
 
-# Virtual environments
+# node stuff
+node_modules/
+
+# pkg
 .venv
+uv.lock
+
+# testing
+**/.hypothesis/*
 
 # Environment files
 .envrc
@@ -19,3 +26,7 @@ wheels/
 # IDE
 *.swp
 *.swo
+.nvim.lua
+
+# dirs
+tmp

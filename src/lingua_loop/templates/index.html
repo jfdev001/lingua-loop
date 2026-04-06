@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LinguaLoop</title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="app">
+        <h1>LinguaLoop</h1>
+        <!-- Language radio buttons -->
+        <form id="languageToTranscribeForm">
+            <label>Language to Transcribe:</label><br>
+            {% for language, language_code in language_to_language_code.items() %}
+            <label>
+                <input type="radio" name="language" value="{{ language_code }}" {% if language_code == 'en' %}checked{% endif %}  >
+                {{ language }}
+            </label><br>
+            {% endfor %}
+        </form>
+
+        <!-- NOTE: Width of any written fields should probably be max available -->
+
+        <!-- Input video -->
+        <div>
+            <label for="videoUrl">Enter YouTube Video URL:</label><br>
+
+            <input class="myVideoUrlInput" type="text" id="videoUrlInput" placeholder="Paste YouTube link here..."/>
+
+            <button id="loadVideoBtn">
+                Load Video
+            </button>
+        </div>
+
+        <!-- Video -->
+        <div class="player-card">
+          <div class="video-wrapper">
+            <div id="player"></div>
+            <div class="overlay-play" id="overlayPlay">
+              <i class="fas fa-play"></i>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-bar">
+
+              <button id="playPauseBtn" class="btn" title="Play / Pause (Space)">
+                <i class="fas fa-play"></i>
+              </button>
+
+              <div class="ctrl-sep"></div>
+
+              <div class="volume-container">
+                <button id="muteBtn" class="btn" title="Mute (M)">
+                  <i class="fas fa-volume-high"></i>
+                </button>
+                <input type="range" id="volumeSlider" class="slider" min="0" max="100" value="100" />
+              </div>
+
+              <div class="ctrl-sep"></div>
+
+              <div class="seek-container">
+                <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" />
+              </div>
+
+              <span class="time">
+                <span id="currentTime">0:00</span>
+                <span>/</span>
+                <span id="duration">0:00</span>
+              </span>
+
+              <div class="ctrl-sep"></div>
+
+              <select id="playbackSpeed" class="control-select" title="Playback speed">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.5">1.5×</option>
+                <option value="2">2×</option>
+              </select>
+
+            </div> <!-- controls bar -->
+          </div>  <!-- video wrapper -->
+        </div> <!-- player card -->
+
+        <!-- n seconds -->
+        <div style="margin-top: 20px;">
+            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how many seconds of content do you want to transcribe?</label><br><br>
+
+            <input
+                type="number"
+                id="numSecondsOfVideoToTranscribe"
+                min="5"
+                value="5"
+                style="width: 80px; padding: 6px;"
+            />
+        </div>
+
+        <!-- Snap to earliest possible transcription segment in video -->
+        <div>
+            <button id="snapToSegmentBtn" class="primary-btn">
+                Snap to Segment
+            </button>
+            <span id="segmentTimeSpan"></span>
+        </div>
+
+        <!-- Snap to earliest possible transcription segment in video -->
+        <div>
+            <button id="toggleStartTranscriptionBtn" class="primary-btn">
+                Start Transcribing
+            </button>
+        </div>
+
+        <!-- User transcription area -->
+        <div>
+            <textarea
+                id="userTextArea"
+                placeholder="Type what you hear..."
+                rows="5"
+                cols="60"></textarea>
+
+            <button id="scoreBtn">Score</button>
+        </div>
+
+        <!-- Reference  -->
+        <div>
+            <textarea id="referenceTextArea" placeholder="Reference text will appear here..." rows="5" cols="60"
+                readonly></textarea>
+        </div>
+    </div> <!-- app -->
+
+    <script>
+        window.APP_CONFIG = {
+            language_to_language_code: {{language_to_language_code | tojson}}
+        };
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
