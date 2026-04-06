@@ -17,9 +17,21 @@ into a single page web application. Here's how you use the app:
 The scoring algorithm uses [Gestalt pattern
 matching](https://en.wikipedia.org/wiki/Gestalt_pattern_matching), which
 essentially matches the longest common series of characters. For example, if
-you type "wikim$$\color{red}an$$ia" but the official transcrit has
-"wikim$$\color{red}ed$$ia", you would receive a score of 0.70 because, despite
-the error, there are common characters that you correctly typed.
+you type
+
+$$
+\text{wikim}\textcolor{red}{an}\text{ia}"
+$$
+
+but the official transcript has
+
+
+$$
+\text{wikim}\textcolor{red}{ed}\text{ia}"
+$$
+
+you would receive a score of 0.70 because, despite the error, there are common
+characters that you correctly typed.
 
 # Future Work
 
