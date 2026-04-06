@@ -1,3 +1,3 @@
-wikim$$\color{red}ed$$ia
+wikim$\color{red}ed$ia
 
 $$\color{red}media$$
