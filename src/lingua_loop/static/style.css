@@ -323,19 +323,3 @@ body::before {
 .player-card:fullscreen #player {
   min-height: calc(100vh - 52px);
 }
-
-/* Placeholder css for buttons */
-/* .primary-btn { */
-/*   background-color: #4CAF50; */
-/*   color: white; */
-/*   border: none; */
-/*   padding: 10px 16px; */
-/*   font-size: 14px; */
-/*   border-radius: 6px; */
-/*   cursor: pointer; */
-/*   /* margin: 15px 0px; */ */
-/* } */
-/**/
-/* .primary-btn:hover { */
-/*   background-color: #45a049; */
-/* } */

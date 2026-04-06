@@ -464,17 +464,18 @@ window.addEventListener("DOMContentLoaded", async () => {
     const transcript = await getTranscript(state.videoId, state.languageCode);
     loadVideoBtn.disabled = false;
 
-    if (transcript) {
-      videoUrlInput.value = "";
-    } else {
-      alert(`
-        No transcript found.
-        Make sure the 'Language to Transcribe' matches the language in the video!
-      `)
+    if (transcript == null) {
+      alert("No transcript found. Make sure the 'Language to Transcribe' matches the language in the video!")
       return;
     }
 
+    // warn against unofficial transcripts
+    if (transcript.is_generated) {
+      alert("Transcript was automatically generated. Beware scoring may be unreliable!")
+    }
+
     // Reset state
+    videoUrlInput.value = "";
     document.getElementById("snapToSegmentBtn").disabled = false;
     document.getElementById("segmentTimeSpan").innerHTML = "";
 
@@ -509,7 +510,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     // compute score
     const scoreResponse = await scoreTranscript(payload);
     if (scoreResponse == null) {
-      alert("Something went wrong when scoring... no score compute")
+      alert("Something went wrong when scoring... no score computed.")
       return;
     }
 
