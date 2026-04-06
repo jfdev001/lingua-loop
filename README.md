@@ -12,7 +12,7 @@ or higher installed. Then you can do the following (in a virtual environment
 if you want) in a terminal:
 
 ```
-pip install lingua-loop
+pip install git+https://github.com/jfdev001/lingua-loop.git
 ```
 
 You can launch the app, which will automatically open a web browser, by doing
@@ -54,7 +54,11 @@ $$
 you would receive a score of 0.70 because, despite the error, there are common
 characters that you correctly typed.
 
+Note that this package is an alpha state and subject to breaking changes and
+bug fixes. Please open a GitHub issue if you encounter problems!
+
 # Future Work
+
 
 Some possible extension ideas:
 
