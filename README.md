@@ -20,14 +20,14 @@ essentially matches the longest common series of characters. For example, if
 you type
 
 $$
-\text{wikim}\textcolor{red}{an}\text{ia}"
+\text{wikim}\textcolor{red}{an}\text{ia}
 $$
 
 but the official transcript has
 
 
 $$
-\text{wikim}\textcolor{red}{ed}\text{ia}"
+\text{wikim}\textcolor{red}{ed}\text{ia}
 $$
 
 you would receive a score of 0.70 because, despite the error, there are common
