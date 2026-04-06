@@ -8,14 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from lingua_loop.constants import DEFAULT_ENV_DATABASE_PATH
-from lingua_loop.constants import DEFAULT_ENV_DB_DRIVER
+from lingua_loop.constants import DEFAULT_DATABASE_PATH
+from lingua_loop.constants import DEFAULT_DB_DRIVER
 from lingua_loop.db.models import Base
 
 
 def get_engine_and_session_maker(
-    db_driver: str = DEFAULT_ENV_DB_DRIVER,
-    database_path: Path | str = DEFAULT_ENV_DATABASE_PATH,
+    db_driver: str = DEFAULT_DB_DRIVER,
+    database_path: Path | str = DEFAULT_DATABASE_PATH,
 ) -> Tuple[AsyncEngine, async_sessionmaker[AsyncSession]]:
     sqlalchemy_database_url = f"{db_driver}:///{database_path}"
     async_engine = create_async_engine(sqlalchemy_database_url)

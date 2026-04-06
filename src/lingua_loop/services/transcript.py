@@ -4,7 +4,6 @@ from typing import Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lingua_loop.constants import MAX_SCORE
 from lingua_loop.db.models import Segment
 from lingua_loop.db.models import Transcript
 from lingua_loop.db.transcript import read_or_create_transcript_with_segments
@@ -85,9 +84,9 @@ def _score_text(reference_text: str, user_text: str):
     ref_words = reference_text.split()
     user_words = user_text.split()
 
-    max_n_words = max(len(ref_words), len(user_words))
-    if max_n_words == 0:  # handles no inputs
-        return MAX_SCORE
+    # NOTE: If the user types additional words beyond the reference text,
+    # they are not punished
+    max_n_words = len(ref_words)
 
     # zip truncates lists... therefore missing/extra words implicitly penalized
     # via division by max_n_words

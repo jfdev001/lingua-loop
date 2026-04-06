@@ -55,14 +55,14 @@ const { language_to_language_code } = window.APP_CONFIG;
 // ----------
 // Application
 // ----------
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   const defaultBbcEnglishLearningVideoId = "Tefu_NvcC0k" // no affiliation
   const defaultLanguageCode = "en"
   const state = {
     /** @type {YT.Player} */
     player: null,
     /** @type {TranscriptResponse} */
-    transcript: null,
+    transcript: await getTranscript(defaultBbcEnglishLearningVideoId, defaultLanguageCode),
     /** @type {number[]} */
     segmentIndices: [],
     videoId: defaultBbcEnglishLearningVideoId,
@@ -73,8 +73,6 @@ window.addEventListener("DOMContentLoaded", () => {
     stopTranscriptionTime: null,
     languageCode: defaultLanguageCode
   };
-
-  window.myStateVar = state // TODO: debug
 
   // -------------------
   // Youtube player
@@ -102,7 +100,6 @@ window.addEventListener("DOMContentLoaded", () => {
   tag.src = "https://www.youtube.com/iframe_api";
   document.head.appendChild(tag);
 
-
   const videoConfiguration = {
     duration: 0,
     lastVolume: 80,
@@ -110,7 +107,6 @@ window.addEventListener("DOMContentLoaded", () => {
     /** @type {HTMLInputElement} */ volumeSlider: null,
     skipIntervalInSeconds: 3     // TODO: could make modifiable html ele
   }
-
 
   /**
     * @param {{ data: PlayerStateData }} event
@@ -129,7 +125,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  async function onPlayerReady() {
+  function onPlayerReady() {
     try {
       state.player.setVolume(videoConfiguration.lastVolume);
     } catch (e) { }
@@ -151,13 +147,8 @@ window.addEventListener("DOMContentLoaded", () => {
       "numSecondsOfVideoToTranscribe")
     numSecondsOfVideoToTranscribe.max = videoConfiguration.duration
 
-    // initialize the state variable transcript using the defaults
-    // TODO: maybe this should be called before iframe loaded???
-    const transcript = await getTranscript(state.videoId, state.languageCode);
-    state.transcript = transcript;
-
-    // Disable the transcription until snap has occurred
-    document.getElementById("toggleStartTranscriptionBtn").disabled = true
+    // enable the snap to segment button now that the video is loaded
+    document.getElementById("snapToSegmentBtn").disabled = false;
 
     // update sliders
     updateSliderFill(videoConfiguration.seekBar);
@@ -178,7 +169,19 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function updateSliderFill(slider) {
     const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-    slider.style.background = `linear-gradient(to right, #c8ff00 ${pct}%, rgba(240,237,230,0.12) ${pct}%)`;
+    const accent = getComputedStyle(document.documentElement)
+      .getPropertyValue('--accent')
+      .trim();
+
+    const track = getComputedStyle(document.documentElement)
+      .getPropertyValue('--track')
+      .trim();
+
+    slider.style.background = `linear-gradient(
+      to right,
+      ${accent} ${pct}%,
+      ${track} ${pct}%
+    )`;
     return;
   }
 
@@ -256,6 +259,9 @@ window.addEventListener("DOMContentLoaded", () => {
       overlay.style.opacity = "1";
       btn.innerHTML = '<i class="fas fa-play"></i>';
     } else {
+      if (state.isTranscribing) {
+        state.player.seekTo(state.startTranscriptionTime, true);
+      }
       state.player.playVideo();
       overlay.style.opacity = "0";
       btn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -273,9 +279,6 @@ window.addEventListener("DOMContentLoaded", () => {
   function handleSnapToSegment() {
     /** @type {HTMLButtonElement} */
     const snapToSegmentBtn = this;
-    if (snapToSegmentBtn.disabled) {
-      return;
-    }
 
     const numSecondsOfVideoToTranscribe = Number(
       document
@@ -298,7 +301,19 @@ window.addEventListener("DOMContentLoaded", () => {
       indexOfStartSegment,
       numSecondsOfVideoToTranscribe
     );
-    console.log(state.segmentIndices);
+    console.log(state.segmentIndices); // TODO: debug
+    for (const segmentIndex of state.segmentIndices) {
+      console.log(segments[segmentIndex]);
+    }
+
+    // Update the segment time span with the start and stop segments
+    /** @type {HTMLSpanElement} */
+    const segmentTimeSpan = document.getElementById("segmentTimeSpan");
+    const stopSegment = segments[state.segmentIndices[state.segmentIndices.length - 1]];
+    const startSegmentTime = formatTime(startSegment.start);
+    const stopSegmentTime = formatTime(stopSegment.start + stopSegment.duration);
+    segmentTimeSpan
+      .innerHTML = `${startSegmentTime} to ${stopSegmentTime}`
 
     // enables transcription once you've got valid indices
     document.getElementById("toggleStartTranscriptionBtn").disabled = false
@@ -355,18 +370,45 @@ window.addEventListener("DOMContentLoaded", () => {
   function handleToggleStartTranscription() {
     /** @type {HTMLButtonElement} */
     const toggleStartTranscriptionBtn = this;
+
     /** @type {HTMLButtonElement} */
     const snapToSegmentBtn = document.getElementById("snapToSegmentBtn");
 
+    /** @type {HTMLButtonElement} */
+    const scoreBtn = document.getElementById("scoreBtn");
+
+    /** @type {HTMLInputElement} */
+    const numSecondsOfVideoToTranscribe = document
+      .getElementById("numSecondsOfVideoToTranscribe");
+
+    /** @type {HTMLTextAreaElement} */
+    const userTextArea = document.getElementById("userTextArea");
+
     const segments = state.transcript.segments;
     const segmentIndices = state.segmentIndices;
-    if (state.isTranscribing) {
+    if (state.isTranscribing) { // toggle off
       toggleStartTranscriptionBtn.innerHTML = "Start Transcribing"
+
+      // enable elements
       snapToSegmentBtn.disabled = false;
+
+      // disable user input
+      userTextArea.disabled = true;
+      scoreBtn.disabled = true;
+
       state.isTranscribing = false;
-    } else {
+
+      state.player.pauseVideo();
+    } else { // toggle on
       toggleStartTranscriptionBtn.innerHTML = "Stop Transcribing";
+
+      // disable buttons
       snapToSegmentBtn.disabled = true;
+
+      // enable user input
+      scoreBtn.disabled = false;
+      userTextArea.disabled = false;
+
       state.isTranscribing = true;
 
       // update the transcription times to limit whre the user can seek
@@ -376,6 +418,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
       const lastSegment = segments[segmentIndices[segmentIndices.length - 1]]
       state.stopTranscriptionTime = lastSegment.start + lastSegment.duration;
+
+      // Jump to the beginning of segment
+      state.player.seekTo(firstSegment.start, true);
+      state.player.playVideo();
     }
     return;
   }
@@ -408,8 +454,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   async function handleLoadVideo() {
     /** @type { HTMLInputElement } */
-    const videoUrlEle = document.getElementById("videoUrl");
-    const videoUrl = videoUrlEle.value;
+    const videoUrlInput = document.getElementById("videoUrlInput");
+    const videoUrl = videoUrlInput.value;
     const videoId = extractVideoId(videoUrl);
     if (!videoId) {
       alert("Invalid video URL");
@@ -430,31 +476,44 @@ window.addEventListener("DOMContentLoaded", () => {
     const transcript = await getTranscript(state.videoId, state.languageCode);
     loadVideoBtn.disabled = false;
 
-    if (transcript) {
-      videoUrlEle.value = ""; // TODO: rename this
-    } else {
-      alert(`
-        No transcript found.
-        Make sure the 'Language to Transcribe' matches the language in the video!
-      `)
+    if (transcript == null) {
+      alert("No transcript found. Make sure the 'Language to Transcribe' matches the language in the video!")
       return;
     }
 
+    // warn against unofficial transcripts
+    if (transcript.is_generated) {
+      alert("Transcript was automatically generated. Beware scoring may be unreliable!")
+    }
+
+    // Reset state
+    videoUrlInput.value = "";
+    document.getElementById("snapToSegmentBtn").disabled = false;
+    document.getElementById("segmentTimeSpan").innerHTML = "";
+
+    document.getElementById("toggleStartTranscriptionBtn").disabled = true;
+
+    document.getElementById("userTextArea").value = ""
+    document.getElementById("userTextArea").disabled = true;
+
+    document.getElementById("referenceTextArea").readOnly = false;
+    document.getElementById("referenceTextArea").value = "";
+    document.getElementById("referenceTextArea").readOnly = true;
+
+    state.isTranscribing = false;
+
+    // update transcript
     state.transcript = transcript;
     return;
   }
 
   async function handleScore() {
-    // Must be in transcription mode to score!
-    if (!state.isTranscribing) {
-      return;
-    }
     // make payload
     /** @type {ScoreRequest} */
     let payload = {};
 
     /** @type {HTMLTextAreaElement} */
-    const userTextArea = document.getElementById("userText");
+    const userTextArea = document.getElementById("userTextArea");
     payload.user_text = userTextArea.value;
     payload.segment_indices = state.segmentIndices;
     payload.video_id = state.videoId;
@@ -463,18 +522,17 @@ window.addEventListener("DOMContentLoaded", () => {
     // compute score
     const scoreResponse = await scoreTranscript(payload);
     if (scoreResponse == null) {
-      alert("Something went wrong when scoring... no score compute")
+      alert("Something went wrong when scoring... no score computed.")
       return;
     }
 
-    console.log(scoreResponse);
     const score = Number(scoreResponse.score).toPrecision(2);
 
     // TODO: this just puts the score into the reference text area for now...
     /** @type {HTMLTextAreaElement} */
-    const referenceTextArea = document.getElementById("referenceText");
+    const referenceTextArea = document.getElementById("referenceTextArea");
     referenceTextArea.readOnly = false;
-    const referenceText = scoreResponse.reference_text.replace(/\r?\n/g, " ");
+    const referenceText = sanitize(scoreResponse.reference_text);
     referenceTextArea.value = `Your score is ${score}/1.0! The reference text is:\n${referenceText}
     `
     referenceTextArea.readOnly = true;
@@ -484,6 +542,17 @@ window.addEventListener("DOMContentLoaded", () => {
   // -------------------
   // Utility functions
   // -------------------
+
+  /**
+    * @param {string} text
+    * @returns {string}
+    */
+  function sanitize(text) {
+    let sanitizedText = text
+      .replace(/\r?\n/g, " ")
+      .replace(/\s+/g, " ");
+    return sanitizedText;
+  }
 
   // References:
   // https://gist.github.com/takien/4077195
@@ -636,14 +705,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
       state.player.seekTo(nextTime, true);
     }
-
-    if (e.key === "m") {
-      toggleMute.call(document.getElementById("muteBtn"));
-    }
-
-    if (e.shiftKey && e.key.toLowerCase() === "s") {
-      handleSnapToSegment();
-    }
   });
 
   document
@@ -679,4 +740,13 @@ window.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("scoreBtn")
     .addEventListener("click", handleScore)
+
+
+  // Disable elements until ready to transcribe
+  document.getElementById("toggleStartTranscriptionBtn").disabled = true;
+  document.getElementById("scoreBtn").disabled = true;
+  document.getElementById("userTextArea").disabled = true;
+
+  // disable snap to segment until player is loaded
+  document.getElementById("snapToSegmentBtn").disabled = true;
 })

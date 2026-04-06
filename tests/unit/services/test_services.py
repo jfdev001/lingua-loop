@@ -76,12 +76,14 @@ def test_score_text(
 
 
 NORMALIZE_TEST_CASES = (
+    ["Dat was een ruïne", SupportedLanguageCodes.DUTCH, "dat was een ruine"],
+    ["I hate sand.", SupportedLanguageCodes.ENGLISH, "i hate sand"],
     [
         "Er hat gesagt, daß Döner schöner macht. Eine übliche Erklärung.",
         SupportedLanguageCodes.GERMAN,
         "er hat gesagt dass doener schoener macht eine uebliche erklaerung",
     ],
-    ["I hate sand.", SupportedLanguageCodes.ENGLISH, "i hate sand"],
+    ["Lui è interesante", SupportedLanguageCodes.ITALIAN, "lui è interesante"],
 )
 
 

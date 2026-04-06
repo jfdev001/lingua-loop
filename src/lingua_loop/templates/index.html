@@ -31,16 +31,11 @@
         <div>
             <label for="videoUrl">Enter YouTube Video URL:</label><br>
 
-            <input class="myVideoUrlInput" type="text" id="videoUrl" placeholder="Paste YouTube link here..."/>
+            <input class="myVideoUrlInput" type="text" id="videoUrlInput" placeholder="Paste YouTube link here..."/>
 
             <button id="loadVideoBtn">
                 Load Video
             </button>
-        </div>
-
-        <!-- Loading indicator -->
-        <div id="loadingIndicator" style="display: none;">
-          ⏳ Loading transcripts...
         </div>
 
         <!-- Video -->
@@ -94,7 +89,7 @@
 
         <!-- n seconds -->
         <div style="margin-top: 20px;">
-            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how much of the video in seconds (minimum 5 seconds) do you want to transcribe?:</label><br><br>
+            <label for="numSecondsOfVideoToTranscribe">From the current time in the video, how many seconds of content do you want to transcribe?</label><br><br>
 
             <input
                 type="number"
@@ -110,6 +105,7 @@
             <button id="snapToSegmentBtn" class="primary-btn">
                 Snap to Segment
             </button>
+            <span id="segmentTimeSpan"></span>
         </div>
 
         <!-- Snap to earliest possible transcription segment in video -->
@@ -119,21 +115,20 @@
             </button>
         </div>
 
-        <!-- Transcript input -->
+        <!-- User transcription area -->
         <div>
             <textarea
-                id="userText"
+                id="userTextArea"
                 placeholder="Type what you hear..."
                 rows="5"
-                cols="60">
-            </textarea>
+                cols="60"></textarea>
 
             <button id="scoreBtn">Score</button>
         </div>
 
         <!-- Reference  -->
         <div>
-            <textarea id="referenceText" placeholder="Reference text will appear here..." rows="5" cols="60"
+            <textarea id="referenceTextArea" placeholder="Reference text will appear here..." rows="5" cols="60"
                 readonly></textarea>
         </div>
     </div> <!-- app -->
