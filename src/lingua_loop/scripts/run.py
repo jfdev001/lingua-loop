@@ -1,7 +1,11 @@
 import threading
 import webbrowser
+from os import mkdir
+from os.path import exists
 
 import uvicorn
+
+from lingua_loop.constants import DATABASE_DIR
 
 
 def run():
@@ -11,6 +15,11 @@ def run():
 
     Reference: https://github.com/Kludex/uvicorn/issues/761#issuecomment-1287679527
     """
+
+    if not exists(DATABASE_DIR):
+        print(f"Making {DATABASE_DIR}")
+        mkdir(DATABASE_DIR)
+
     host = "127.0.0.1"
     free_port = 49152
     threading.Timer(2.0, lambda: webbrowser.open(f"{host}:{free_port}")).start()

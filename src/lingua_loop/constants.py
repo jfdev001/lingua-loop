@@ -2,14 +2,15 @@ from pathlib import Path
 
 # Directories
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_DIR = Path(__file__).resolve().parents[2]
+HOME_DIR = Path.home()
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
 # Database
-DATABASE_DIR = "data"
+DATABASE_DIR_BASENAME = ".lingua_loop"
+DATABASE_DIR = HOME_DIR / DATABASE_DIR_BASENAME
 TRANSCRIPTS_DB = "transcripts.db"
-DEFAULT_DATABASE_PATH = PROJECT_DIR / DATABASE_DIR / TRANSCRIPTS_DB
+DEFAULT_DATABASE_PATH = DATABASE_DIR / TRANSCRIPTS_DB
 DEFAULT_DB_DRIVER = "sqlite+aiosqlite"
 
 # Score consts
