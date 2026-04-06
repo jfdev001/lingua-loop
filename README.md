@@ -1,20 +1,30 @@
 # lingua-loop
 
 LinguaLoop bundles my transcription-focused technique for learning languages
-into a simple web application. Here's how you use the app:
+into a single page web application. Here's how you use the app:
 
 1. Select the target language you want to study.
 2. Copy and paste a youtube video corresponding to that target language.
    Ideally, the video should have **official** transcripts since those will be
    used as the reference for scoring your transcription attempt.
-3. Listen to the video in small segments (e.g., 10 second segments) and attempt
-   to write down what you hear. You may listen as many times as you want.
+3. Listen to the video in small segments (e.g., 10 second segments) and
+   to type what you think you hear. You may listen as many times as you want.
 4. Once you have made an honest attempt, you can submit your transcription
-   attempt and will receive a score from 0 to 1 where 1 indicates a perfect
-   transcription and 0 indicates a complete mismatch.
+   attempt and will receive a score from 0 to 1. A score of 1 indicates a
+   perfect transcription and a score of 0 indicates a complete mismatch.
 5. Repeat for as long as desired.
 
-Future work could include any of the following:
+The scoring algorithm uses [Gestalt pattern
+matching](https://en.wikipedia.org/wiki/Gestalt_pattern_matching), which
+essentially matches the longest common series of characters. For example,
+if you type "wikim<span style="color: red;">an</span>ia" but the official
+transcrit has "wikim<span style="color: red;">ed</span>ia", you would receive
+a score of 0.70 since despite the error, there are common characters that you
+correctly typed.
+
+# Future Work
+
+Some possible extension ideas:
 
 1. Integrate Anki-style flash cards for selected words. A word should be added
    to a flash card deck in addition to the context in which it occurred (e.g.,
