@@ -44,7 +44,7 @@ Some possible extension ideas:
 2. Support more languages. Currently only Indo-european languages are
    supported, though support for languages such as Mandarin would be extremely
    valuable. For Mandarin, I think text normalization would require
-   [pinyin](https://en.wikipedia.org/wiki/Pinyin)
+   [pinyin](https://en.wikipedia.org/wiki/Pinyin).
 3. More sophisticated scoring algorithms.
 4. Integrate an AI chat bot that is given the full transcript as context and
    subsequently asks the user comprehension questions or engages in
