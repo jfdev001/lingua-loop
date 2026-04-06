@@ -1,23 +1,44 @@
 # lingua-loop
 
-LinguaLoop bundles my transcription-focused technique for learning languages
-into a single page web application. Here's how you use the app:
+> Train your listening skills by transcribing real speech from YouTube videos.
+
+LinguaLoop is a single-page web application designed to improve language
+listening skills through active transcription. It is based on a
+transcription-first learning approach, where users repeatedly listen to short
+audio segments and attempt to reconstruct them from memory.
+
+To run the web application on your computer, you need Python version 3.12
+or higher installed. Then you can do the following (in a virtual environment
+if you want) in a terminal:
+
+```
+pip install lingua-loop
+```
+
+You can launch the app, which will automatically open a web browser, by doing
+the following in a terminal:
+
+```
+lingua-loop
+```
+
+Here's how you use the app:
 
 1. Select the target language you want to study.
-2. Copy and paste a youtube video corresponding to that target language.
+2. Copy and paste a YouTube video URL corresponding to that target language.
    Ideally, the video should have **official** transcripts since those will be
    used as the reference for scoring your transcription attempt.
-3. Listen to the video in small segments (e.g., 10 second segments) and
-   to type what you think you hear. You may listen as many times as you want.
+3. Listen to short segments of the video (e.g., 10 seconds) and type what you
+   hear. You may replay each segment as many times as needed.
 4. Once you have made an honest attempt, you can submit your transcription
    attempt and will receive a score from 0 to 1. A score of 1 indicates a
    perfect transcription and a score of 0 indicates a complete mismatch.
-5. Repeat for as long as desired.
+5. Repeat as long as desired.
 
 The scoring algorithm uses [Gestalt pattern
 matching](https://en.wikipedia.org/wiki/Gestalt_pattern_matching), which
-essentially matches the longest common series of characters. For example, if
-you type
+compares your input to the reference transcript by finding the longest common
+subsequences of characters. For example, if you type
 
 $$
 \text{wikim}\textcolor{red}{an}\text{ia}
@@ -41,7 +62,7 @@ Some possible extension ideas:
    to a flash card deck in addition to the context in which it occurred (e.g.,
    sentence or phrase). The user *should* write additional context to keep them
    actively engaged in the learning process.
-2. Support more languages. Currently only Indo-european languages are
+2. Support more languages. Currently only Indo-European languages are
    supported, though support for languages such as Mandarin would be extremely
    valuable. For Mandarin, I think text normalization would require
    [pinyin](https://en.wikipedia.org/wiki/Pinyin).
@@ -108,15 +129,15 @@ The fast package manger `uv` was used in the development of this project.
 You can install `lingua-loop` in development mode by doing the following:
 
 ```shell
-$ git clone git@github.com:jfdev001/lingua-loop.git
-$ cd lingua-loop
-$ uv sync
+git clone git@github.com:jfdev001/lingua-loop.git
+cd lingua-loop
+uv sync
 ```
 
 As a sanity check, you should verify the FastAPI backend tests pass:
 
 ```shell
-$ pytest -v tests/
+pytest -v tests/
 ```
 
 There are tests to verify the outputs of the `youtube_transcript_api`
@@ -125,7 +146,7 @@ run by default. You can run those tests if you want by including the `--slow`
 flag like:
 
 ```shell
-$ pytest -v --slow tests/
+pytest -v --slow tests/
 ```
 
 You should also make sure that your files are formatted according to
@@ -133,7 +154,7 @@ the conventions defined in `.pre-commit-config.yaml`. To that end, use
 the fast git hook runner framework [prek](https://github.com/j178/prek):
 
 ```
-$ prek install
+prek install
 ```
 
 If you'd like to contribute, consider opening an issue first and/or addressing
@@ -143,6 +164,14 @@ come from branches with the following structure:
 
 ```
 <name>/<issue-number-if-applicable>-<feature-description>
+```
+
+The frontend is vanilla JS/HTML/CSS, so the `npm` is not strictly necessary,
+but if you'd like type hints for the Youtube iframe API, you can install
+the frontend dependencies with:
+
+```
+npm install
 ```
 
 # References
