@@ -1,13 +1,5 @@
 from pathlib import Path
 
-# Unit/integration environment variables
-TEST_ON = "ON"
-TEST_OFF = "OFF"
-
-ENV_UNIT_TEST = "UNIT_TEST"
-ENV_INTEGRATION_TEST = "INTEGRATION_TEST"
-DEFAULT_ENV_INTEGRATION_TEST = TEST_OFF
-
 # Database
 IN_MEMORY = ":memory:?cache=shared"
 TEST_DIR = Path(__file__).resolve().parent

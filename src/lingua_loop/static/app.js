@@ -74,8 +74,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     languageCode: defaultLanguageCode
   };
 
-  window.myStateVar = state // TODO: debug
-
   // -------------------
   // Youtube player
   // https://developers.google.com/youtube/iframe_api_reference
@@ -444,8 +442,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   async function handleLoadVideo() {
     /** @type { HTMLInputElement } */
-    const videoUrlEle = document.getElementById("videoUrl");
-    const videoUrl = videoUrlEle.value;
+    const videoUrlInput = document.getElementById("videoUrlInput");
+    const videoUrl = videoUrlInput.value;
     const videoId = extractVideoId(videoUrl);
     if (!videoId) {
       alert("Invalid video URL");
@@ -467,7 +465,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     loadVideoBtn.disabled = false;
 
     if (transcript) {
-      videoUrlEle.value = ""; // TODO: rename this
+      videoUrlInput.value = "";
     } else {
       alert(`
         No transcript found.
@@ -497,10 +495,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function handleScore() {
-    // Must be in transcription mode to score!
-    if (!state.isTranscribing) {
-      return;
-    }
     // make payload
     /** @type {ScoreRequest} */
     let payload = {};
@@ -519,7 +513,6 @@ window.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    console.log(scoreResponse);
     const score = Number(scoreResponse.score).toPrecision(2);
 
     // TODO: this just puts the score into the reference text area for now...
