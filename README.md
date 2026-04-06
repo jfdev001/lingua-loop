@@ -58,16 +58,17 @@ characters that you correctly typed.
 
 Some possible extension ideas:
 
-1. Integrate Anki-style flash cards for selected words. A word should be added
+1. Significantly improve the styling.
+2. Integrate Anki-style flash cards for selected words. A word should be added
    to a flash card deck in addition to the context in which it occurred (e.g.,
    sentence or phrase). The user *should* write additional context to keep them
    actively engaged in the learning process.
-2. Support more languages. Currently only Indo-European languages are
+3. Support more languages. Currently only Indo-European languages are
    supported, though support for languages such as Mandarin would be extremely
    valuable. For Mandarin, I think text normalization would require
    [pinyin](https://en.wikipedia.org/wiki/Pinyin).
-3. More sophisticated scoring algorithms.
-4. Integrate an AI chat bot that is given the full transcript as context and
+4. More sophisticated scoring algorithms.
+5. Integrate an AI chat bot that is given the full transcript as context and
    subsequently asks the user comprehension questions or engages in
    conversation about the video topic. Could be executed using local models
    or combined with API keys.

@@ -169,7 +169,19 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   function updateSliderFill(slider) {
     const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-    slider.style.background = `linear-gradient(to right, #c8ff00 ${pct}%, rgba(240,237,230,0.12) ${pct}%)`;
+    const accent = getComputedStyle(document.documentElement)
+      .getPropertyValue('--accent')
+      .trim();
+
+    const track = getComputedStyle(document.documentElement)
+      .getPropertyValue('--track')
+      .trim();
+
+    slider.style.background = `linear-gradient(
+      to right,
+      ${accent} ${pct}%,
+      ${track} ${pct}%
+    )`;
     return;
   }
 
