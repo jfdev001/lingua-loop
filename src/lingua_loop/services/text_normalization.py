@@ -2,6 +2,8 @@ from abc import ABC
 from abc import abstractmethod
 from re import sub
 from typing import Literal
+from unicodedata import combining
+from unicodedata import normalize
 
 from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 
@@ -23,15 +25,22 @@ class TextNormalizer(ABC):
     form: NormalizationForm = "NFKD"
 
     def normalize(self, text: str) -> str:
-        text = self.normalize_accents(text)
+        text = self.normalize_special_characters(text)
         text = self.normalize_case(text)
         text = self.normalize_punctuation(text)
         text = self.normalize_whitespace(text)
         return text
 
     @abstractmethod
-    def normalize_accents(self, text: str) -> str:
-        """Replace accents (return text if no change)"""
+    def normalize_special_characters(self, text: str) -> str:
+        """Replace or remove special characters (return text if no change).
+
+        In some languages, like German, special characters like "ß" can be
+        noramalized to written as "ss" and this does not change meaning.
+        However, for languages like Italian, there is a difference between "è"
+        and "e", so no special characters normalization is implemented for
+        that.
+        """
         pass
 
     def normalize_case(self, text: str) -> str:
@@ -53,16 +62,19 @@ class TextNormalizer(ABC):
 
 
 class GenericNormalizer(TextNormalizer):
-    def normalize_accents(self, text: str) -> str:
-        """TODO: unicodeata.combined here to remove special characters...
+    def normalize_special_characters(self, text: str) -> str:
+        return text
 
-        TODO: Will this break anyhing??? Lui è comico, write test case for this
-        """
+
+class DutchNormalizer(TextNormalizer):
+    def normalize_special_characters(self, text: str) -> str:
+        text = normalize(self.form, text)
+        text = "".join(c for c in text if not combining(c))
         return text
 
 
 class GermanNormalizer(TextNormalizer):
-    def normalize_accents(self, text: str) -> str:
+    def normalize_special_characters(self, text: str) -> str:
         text = (
             text.replace("ß", "ss")
             .replace("ä", "ae")
@@ -74,7 +86,8 @@ class GermanNormalizer(TextNormalizer):
 
 class TextNormalizerFactory:
     _language_code_to_normalizer = {
-        SupportedLanguageCodes.GERMAN: GermanNormalizer
+        SupportedLanguageCodes.DUTCH: DutchNormalizer,
+        SupportedLanguageCodes.GERMAN: GermanNormalizer,
     }
 
     def __call__(self, language_code: SupportedLanguageCodes) -> TextNormalizer:
