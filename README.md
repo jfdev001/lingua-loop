@@ -80,7 +80,6 @@ intended to be as standard and intuitive as possible:
 
 ```
 lingua-loop
-├── data             # where transcripts.db is stored
 ├── src
 │   └── lingua_loop
 │       ├── api
