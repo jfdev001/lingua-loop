@@ -95,8 +95,15 @@ Extensive testing for the FastAPI backend is available and you should
 verify the tests pass on your machine:
 
 ```shell
-$ # assuming in /path/to/lingua-loop
 $ pytest -v tests/
+```
+
+You should also make sure that your files are formatted according to
+the conventions defined in `.pre-commit-config.yaml`. To that end, use
+the fast git hook runner framework [prek](https://github.com/j178/prek):
+
+```
+$ prek install
 ```
 
 There are tests to verify the outputs of the `youtube_transcript_api`
