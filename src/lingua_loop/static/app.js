@@ -243,8 +243,16 @@ window.addEventListener("DOMContentLoaded", async () => {
       current = state.player.getCurrentTime();
     }
 
+    const duration = state.player.getDuration()
+    if (!isNaN(duration) && duration != 0) {
+      videoConfiguration.duration = duration;
+      document.getElementById("duration").textContent = formatTime(
+        videoConfiguration.duration);
+    }
+
     document.getElementById("currentTime").textContent = formatTime(current);
     videoConfiguration.seekBar.value = (current / videoConfiguration.duration) * 100;
+
     updateSliderFill(videoConfiguration.seekBar);
     return;
   }
