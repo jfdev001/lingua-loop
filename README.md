@@ -166,7 +166,7 @@ come from branches with the following structure:
 <name>/<issue-number-if-applicable>-<feature-description>
 ```
 
-The frontend is vanilla JS/HTML/CSS, so the `npm` is not strictly necessary,
+The frontend is vanilla JS/HTML/CSS, so using `npm` is not strictly necessary,
 but if you'd like type hints for the Youtube iframe API, you can install
 the frontend dependencies with:
 
