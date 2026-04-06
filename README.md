@@ -4,8 +4,8 @@
 
 LinguaLoop is a single-page web application designed to improve language
 listening skills through active transcription. It is based on a
-transcription-first learning approach, where users repeatedly listen to short
-audio segments and attempt to reconstruct them from memory.
+transcription-first learning approach where users repeatedly listen to short
+audio segments and attempt to write down what they've heard.
 
 To run the web application on your computer, you need Python version 3.12
 or higher installed. Then you can do the following (in a virtual environment
