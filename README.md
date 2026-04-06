@@ -62,7 +62,8 @@ lingua-loop
 │       │   ├── text_normalization.py
 │       │   └── transcript.py
 │       ├── static
-│       │   └── app.js
+│       │   ├── app.js
+│       │   └── style.css
 │       └── templates
 │           └── index.html
 └── tests
