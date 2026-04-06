@@ -22,7 +22,9 @@ def run():
 
     host = "127.0.0.1"
     free_port = 49152
-    threading.Timer(2.0, lambda: webbrowser.open(f"{host}:{free_port}")).start()
+    threading.Timer(
+        2.0, lambda: webbrowser.open(f"http://{host}:{free_port}")
+    ).start()
     uvicorn.run("lingua_loop.main:app", host=host, port=free_port, reload=True)
 
 
