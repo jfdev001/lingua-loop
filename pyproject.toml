@@ -16,6 +16,11 @@ dependencies = [
 [project.scripts]
 lingua-loop = "lingua_loop.scripts.run:run"
 
+# https://github.com/astral-sh/uv/issues/9271#issuecomment-2488635515
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
