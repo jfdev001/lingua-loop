@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+
+  # trigger on change to this workflow
+  pull_request:
+    paths:
+      - '.github/workflows/ci.yml'
+
+  # allow trigger manually from actions
+  workflow_dispatch:
+
+# Cancel jobs running if new commits are pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  style:
+    name: "style"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: "Install project"
+        run: |
+          uv sync
+
+      - name: "pre-commit check"
+        run: |
+          uv run prek --all-files
+
+  test-backend:
+    name: "test backend with pytest"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "check for changes to python files"
+        uses: dorny/paths-filter@v4
+        id: changes
+        with:
+          filters: |
+            python:
+              - "**/*.py"
+
+      - name: "Install uv"
+        if: steps.changes.outputs.python == 'true'
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: "Install project"
+        if: steps.changes.outputs.python == 'true'
+        run: |
+          uv sync
+
+      - name: "pytest"
+        if: steps.changes.outputs.python == 'true'
+        run: |
+          uv run pytest -v tests/
