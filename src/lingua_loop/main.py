@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from os import remove
 from typing import TypedDict
 
 from fastapi import FastAPI
@@ -30,6 +31,8 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables(async_engine=async_engine)
     yield {"async_session_maker": async_session_maker}
     await shutdown(async_engine=async_engine)
+    if async_engine.url.database:  # TODO: basically in mem db for now
+        remove(async_engine.url.database)
 
 
 def create_app() -> FastAPI:
