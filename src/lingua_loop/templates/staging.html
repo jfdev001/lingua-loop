@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <link rel="stylesheet" href="/static/pico.min.css">
+    <link rel="stylesheet" href="/static/flag-icons-main/css/flag-icons.min.css">
+    <title>Hello world!</title>
+</head>
+
+<body>
+    <main class="container">
+        <nav>
+            <ul>
+                <li><a href="#" class="secondary"></a></li>
+            </ul>
+            <ul>
+                <li>
+                    <h1>LinguaLoop</h1>
+                </li>
+            </ul>
+
+            <ul>
+                <li><a href="#" class="secondary"></a></li>
+            </ul>
+        </nav>
+
+        <article>
+            <fieldset>
+                <legend>Language to Transcribe</legend>
+                <label>
+                    <input type="radio" id="dutch" name="second-language" checked />
+                    Dutch
+                    <span class="fi fi-nl"></span>
+                </label>
+
+                <label>
+                    <input type="radio" id="english" name="second-language" />
+                    English
+                    <span class="fi fi-gb"></span>
+                </label>
+
+                <label>
+                    <input type="radio" id="german" name="second-language" />
+                    German
+                    <span class="fi fi-de"></span>
+                </label>
+
+                <label>
+                    <input type="radio" id="italian" name="second-language" />
+                    Italian
+                    <span class="fi fi-it"></span>
+                </label>
+
+            </fieldset>
+        </article>
+
+        <article>
+            <form>
+                <input type="text" placeholder="YouTube URL" />
+                <button type="submit">Load</button>
+            </form>
+        </article>
+
+        <article>
+            Placeholder for the video here
+        </article>
+
+        <article>
+            <button type="submit">Start Transcribing</button>
+            <textarea id="transcription" placeholder="Type what you hear..." rows="5"></textarea>
+        </article>
+
+
+        <article>
+            <button type="submit">Score</button>
+            <textarea readonly id="scoreDisplay" placeholder="Score display..." rows="5"></textarea>
+
+            <textarea readonly id="referenceText" placeholder="Reference text..." rows="5"></textarea>
+        </article>
+    </main>
+</body>
+
+</html>
