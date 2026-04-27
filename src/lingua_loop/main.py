@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from os import getenv
 from os import remove
+from os.path import exists
 from typing import TypedDict
 
 from fastapi import FastAPI
@@ -12,6 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from lingua_loop.api.routers import transcript
+from lingua_loop.constants import APP_ENV
+from lingua_loop.constants import DEVELOPMENT
 from lingua_loop.constants import STATIC_DIR
 from lingua_loop.constants import TEMPLATES_DIR
 from lingua_loop.db.session import create_db_and_tables
@@ -31,7 +35,8 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables(async_engine=async_engine)
     yield {"async_session_maker": async_session_maker}
     await shutdown(async_engine=async_engine)
-    if async_engine.url.database:  # TODO: basically in mem db for now
+    assert async_engine.url.database
+    if not getenv(APP_ENV) == DEVELOPMENT and exists(async_engine.url.database):
         remove(async_engine.url.database)
 
 
