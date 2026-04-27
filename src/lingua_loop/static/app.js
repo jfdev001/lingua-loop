@@ -713,6 +713,12 @@ window.addEventListener("DOMContentLoaded", async () => {
 
       state.player.seekTo(nextTime, true);
     }
+
+    // shortcut to jump to start of transcription time
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() == "l") {
+      state.player.seekTo(state.startTranscriptionTime, true);
+      state.player.playVideo();
+    }
   });
 
   document
