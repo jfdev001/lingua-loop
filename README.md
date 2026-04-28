@@ -44,7 +44,7 @@ pip install git+https://github.com/jfdev001/lingua-loop.git
 
 For a faster install for users more familiar with Python packages and virtual
 environments, you can use the [uv](https://github.com/astral-sh/uv) package
-manager, go to section [Installation with uv](installation-with-uv) for details.
+manager, go to section [Installation with uv](#installation-with-uv) for details.
 
 
 ## Usage
