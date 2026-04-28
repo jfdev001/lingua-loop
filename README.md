@@ -216,7 +216,7 @@ npm install
 ## Installation with uv
 
 If you do not already have the `uv` package manager installed, you can go to
-Astral's official documentation and following the [installation
+Astral's official documentation and follow the [installation
 instructions](https://docs.astral.sh/uv/getting-started/installation/).
 
 If you already have a conda base environment and are okay installing
