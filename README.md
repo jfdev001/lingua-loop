@@ -32,8 +32,8 @@ Using venv on Linux/macOS, if you know your python version is 3.12 or higher,
 open a terminal:
 
 ```
-python -m venv .venv
-. .venv/bin/activate
+python -m venv .venv_lingua_loop
+. .venv_lingua_loop/bin/activate
 ```
 
 Then you can install the package:
