@@ -49,8 +49,8 @@ manager, go to section [Installation with uv](#installation-with-uv) for details
 
 ## Usage
 
-You can then launch the app, which will automatically open a web browser, with
-the following command in a terminal:
+You can launch the app, which will automatically open a web browser, with the
+following command in a terminal:
 
 ```
 lingua-loop
@@ -95,7 +95,7 @@ bug fixes. Please open a GitHub issue if you encounter problems!
 
 Some possible extension ideas:
 
-1. Significantly improve the styling.
+1. Significantly improve the styling/UX.
 2. Integrate Anki-style flash cards for selected words. A word should be added
    to a flash card deck in addition to the context in which it occurred (e.g.,
    sentence or phrase). The user *should* write additional context to keep them
@@ -227,16 +227,21 @@ uv pip install git+https://github.com/jfdev001/lingua-loop.git --system
 ```
 
 Otherwise, you can follow whichever `uv` workflow you're comfortable with, but
-for those familiar with `pip`, I think the following is the easiest (on Linux/macOS):
+for those familiar with `pip`, the following is the easiest (on Linux/macOS):
 
 ```
-python -m venv .venv
-. .venv/bin/activate
+python -m venv .venv_lingua_loop
+. .venv_lingua_loop/bin/activate
 uv pip install git+https://github.com/jfdev001/lingua-loop.git
 ```
 
-For Windows users, you could execute the above commands using Windows Subsystem
-for Linux (WSL), in a Bash terminal (i.e., Git Bash), or in
+For Windows users, you could execute the above commands using `Command Prompt`:
+
+```
+python -m venv .venv_lingua_loop
+.\.venv_lingua_loop\Scripts\activate
+uv pip install git+https://github.com/jfdev001/lingua-loop.git
+```
 
 # References
 
