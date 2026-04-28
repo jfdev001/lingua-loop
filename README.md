@@ -2,21 +2,55 @@
 
 > Train your listening skills by transcribing real speech from YouTube videos.
 
-LinguaLoop is a single-page web application designed to improve language
+`lingua-loop` is a single-page web application designed to improve language
 listening skills through active transcription. It is based on a
 transcription-first learning approach where users repeatedly listen to short
 audio segments and attempt to write down what they've heard.
 
-To run the web application on your computer, you need Python version 3.12
-or higher installed. Then you can do the following (in a virtual environment
-if you want) in a terminal:
+## Installation
+
+To run the web application on your computer, you need Python version 3.12 or
+higher installed. It is recommended to create a dedicated virtual environment
+first before installing `lingua-loop`.
+
+Using conda:
+
+```
+conda create --name lingua-loop python=3.12
+conda activate lingua-loop
+```
+
+Using venv on Windows, if you know your python version is 3.12 or higher,
+open `Command Prompt`:
+
+```
+python -m venv .venv_lingua_loop
+.\.venv_lingua_loop\Scripts\activate
+```
+
+Using venv on Linux/macOS, if you know your python version is 3.12 or higher,
+open a terminal:
+
+```
+python -m venv .venv
+. .venv/bin/activate
+```
+
+Then you can install the package:
 
 ```
 pip install git+https://github.com/jfdev001/lingua-loop.git
 ```
 
-You can launch the app, which will automatically open a web browser, by doing
-the following in a terminal:
+For a faster install for users more familiar with Python packages and virtual
+environments, you can use the [uv](https://github.com/astral-sh/uv) package
+manager, go to section [Installation with uv](installation-with-uv) for details.
+
+
+## Usage
+
+You can then launch the app, which will automatically open a web browser, with
+the following command in a terminal:
 
 ```
 lingua-loop
@@ -58,7 +92,6 @@ Note that this package is an alpha state and subject to breaking changes and
 bug fixes. Please open a GitHub issue if you encounter problems!
 
 # Future Work
-
 
 Some possible extension ideas:
 
@@ -177,6 +210,33 @@ the frontend dependencies with:
 ```
 npm install
 ```
+
+# Extras
+
+## Installation with uv
+
+If you do not already have the `uv` package manager installed, you can go to
+Astral's official documentation and following the [installation
+instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+If you already have a conda base environment and are okay installing
+`lingua-loop` there with `uv`, do the following:
+
+```
+uv pip install git+https://github.com/jfdev001/lingua-loop.git --system
+```
+
+Otherwise, you can follow whichever `uv` workflow you're comfortable with, but
+for those familiar with `pip`, I think the following is the easiest (on Linux/macOS):
+
+```
+python -m venv .venv
+. .venv/bin/activate
+uv pip install git+https://github.com/jfdev001/lingua-loop.git
+```
+
+For Windows users, you could execute the above commands using Windows Subsystem
+for Linux (WSL), in a Bash terminal (i.e., Git Bash), or in
 
 # References
 
