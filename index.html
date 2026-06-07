@@ -79,6 +79,50 @@
 <h1>Welcome to lingua-loop’s documentation!<a class="headerlink" href="#welcome-to-lingua-loop-s-documentation" title="Link to this heading"></a></h1>
 <p>A web application to train your listening skills by transcribing real speech
 from YouTube videos.</p>
+<img alt="_images/lingua-loop.png" class="align-center" src="_images/lingua-loop.png" />
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>You need Python version 3.12 or higher. It’s recommended to create a dedicated
+virtual environment first.</p>
+<p>Using conda:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>lingua-loop<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12
+conda<span class="w"> </span>activate<span class="w"> </span>lingua-loop
+</pre></div>
+</div>
+<p>Using venv on Windows:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>python -m venv .venv_lingua_loop
+.\.venv_lingua_loop\Scripts\activate
+</pre></div>
+</div>
+<p>Using venv on Linux/macOS:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv_lingua_loop
+.<span class="w"> </span>.venv_lingua_loop/bin/activate
+</pre></div>
+</div>
+<p>Then install the package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lingua-loop
+</pre></div>
+</div>
+<p>The package is also installable directly from the repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/jfdev001/lingua-loop.git
+</pre></div>
+</div>
+<p>For a faster install using the <code class="docutils literal notranslate"><span class="pre">uv</span></code> package manager:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/jfdev001/lingua-loop.git
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This package is under active development and updated frequently.</p>
+</div>
+</section>
+<section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<p>Launch the app (which will open a web browser automatically):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lingua-loop
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
