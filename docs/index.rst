@@ -52,6 +52,17 @@ For a faster install using the ``uv`` package manager:
 
    uv pip install git+https://github.com/jfdev001/lingua-loop.git
 
+Using Docker:
+
+.. code-block:: bash
+
+   docker build -t lingua-loop .
+   docker run -p 49152:49152 lingua-loop
+
+.. important::
+   The browser auto-open feature does not work inside a container.
+   Manually open http://0.0.0.0:49152 in your browser.
+
 .. note::
    This package is under active development and updated frequently.
 
