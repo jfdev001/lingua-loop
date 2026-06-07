@@ -1,3 +1,5 @@
+"""Script entry point for running the Lingua Loop server."""
+
 import threading
 import webbrowser
 from os import mkdir

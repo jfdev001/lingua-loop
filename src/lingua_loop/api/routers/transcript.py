@@ -1,3 +1,5 @@
+"""API routes for transcript operations."""
+
 from typing import List
 
 from fastapi import APIRouter
@@ -29,6 +31,7 @@ async def get_transcript(
     language_code: SupportedLanguageCodes,
     session=Depends(get_async_session),
 ):
+    """Get a transcript for the given video ID and language code."""
     transcript = await get_or_create_transcript_with_segments(
         video_id=video_id, language_code=language_code, session=session
     )
@@ -44,6 +47,7 @@ async def get_transcript(
 
 
 def _segments_to_schema(segments: List[Segment]) -> List[SegmentSchema]:
+    """Convert Segment ORM models to SegmentSchema instances."""
     segments_as_schema = [
         SegmentSchema(
             start=segment.start, duration=segment.duration, text=segment.text
@@ -58,9 +62,9 @@ async def score_transcription(
     request: ScoreRequest,
     session: AsyncSession = Depends(get_async_session),
 ):
+    """Score a user's transcription against the reference text."""
     await _validate_score_request(request=request, session=session)
 
-    # Score the request
     score, reference_text = await compute_score(
         video_id=request.video_id,
         segment_indices=request.segment_indices,
@@ -75,6 +79,7 @@ async def score_transcription(
 async def _validate_score_request(
     request: ScoreRequest, session: AsyncSession
 ) -> None:
+    """Validate the score request against available segments."""
     transcript = await get_or_create_transcript_with_segments(
         video_id=request.video_id,
         session=session,

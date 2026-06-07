@@ -1,3 +1,5 @@
+"""Constants for Lingua Loop."""
+
 from pathlib import Path
 
 # Directories

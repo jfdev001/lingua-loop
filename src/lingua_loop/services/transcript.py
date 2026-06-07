@@ -1,3 +1,5 @@
+"""Service layer for transcript scoring."""
+
 from difflib import SequenceMatcher
 from typing import List
 from typing import Tuple
@@ -31,7 +33,7 @@ async def compute_score(
     language_code: SupportedLanguageCodes,
     session: AsyncSession,
 ) -> Tuple[float, str]:
-
+    """Compute a score comparing user text to reference text."""
     transcript = await read_or_create_transcript_with_segments(
         video_id=video_id, session=session, language_code=language_code
     )
@@ -56,6 +58,7 @@ async def compute_score(
 def _get_transcript_segments_by_indices(
     transcript: Transcript, segment_indices: List[int]
 ) -> List[Segment]:
+    """Get transcript segments at the specified indices."""
     assert _is_monotonically_increasing(segment_indices)
     segments = transcript.segments
     segments = [segments[ix] for ix in segment_indices]
@@ -63,6 +66,7 @@ def _get_transcript_segments_by_indices(
 
 
 def _is_monotonically_increasing(indices: List[int]) -> bool:
+    """Check if the given indices are strictly increasing."""
     assert len(indices) >= 1
     monotonically_increasing: bool = True
     for ix in range(0, len(indices) - 1):
@@ -75,7 +79,8 @@ def _is_monotonically_increasing(indices: List[int]) -> bool:
 
 
 def _score_text(reference_text: str, user_text: str):
-    """
+    """Compute score using Gestalt pattern matching algorithm.
+
     TODO: At some point, you may want to give the user information about
     word level mismatches so that they can see roughly what they missed...
     the current approach just gives an overall score. It also performs
