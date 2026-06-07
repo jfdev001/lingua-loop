@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
 
+  pull_request:
+    branches: ["main"]
+
   # trigger on change to this workflow
   pull_request:
     paths:
