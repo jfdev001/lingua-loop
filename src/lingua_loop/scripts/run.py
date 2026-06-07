@@ -22,7 +22,7 @@ def run():
         print(f"Making {DATABASE_DIR}")
         mkdir(DATABASE_DIR)
 
-    host = "127.0.0.1"
+    host = "0.0.0.0"
     free_port = 49152
     threading.Timer(
         2.0, lambda: webbrowser.open(f"http://{host}:{free_port}")
