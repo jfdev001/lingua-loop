@@ -21,6 +21,9 @@ jobs:
   style:
     name: "style"
     runs-on: ubuntu-latest
+    # needed for gh-pages
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,3 +73,38 @@ jobs:
         if: steps.changes.outputs.python == 'true'
         run: |
           uv run pytest -v tests/
+
+  deploy-docs:
+    name: "deploy docs"
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: "Install project with docs extras"
+        run: |
+          uv sync --group docs
+
+      - name: "Build Sphinx docs"
+        run: |
+          uv run sphinx-build -b html docs docs/_build
+
+      - name: "Upload Pages artifact"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build
+
+      - name: "Deploy to GitHub Pages"
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/
