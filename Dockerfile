@@ -11,4 +11,5 @@ RUN uv sync --no-default-groups
 
 EXPOSE 49152
 
-CMD ["uv", "run", "--no-default-groups", "lingua-loop"]
+ENV PATH="/app/.venv/bin:$PATH"
+CMD ["lingua-loop"]

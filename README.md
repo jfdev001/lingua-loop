@@ -248,6 +248,8 @@ uv pip install git+https://github.com/jfdev001/lingua-loop.git
 You can also run `lingua-loop` with Docker. Build the image:
 
 ```
+git clone --depth 1 https://github.com/jfdev001/lingua-loop.git
+cd lingua-loop
 docker build -t lingua-loop .
 ```
 
@@ -257,7 +259,7 @@ Then run the container:
 docker run -p 49152:49152 lingua-loop
 ```
 
-> **Note:** The browser auto-open feature does not work inside a container. Manually open http://0.0.0.0:49152 in your browser.
+> **Note:** The browser auto-open feature does not work inside a container. Manually open http://localhost:49152 in your browser.
 
 # References
 
