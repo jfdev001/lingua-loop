@@ -21,9 +21,6 @@ jobs:
   style:
     name: "style"
     runs-on: ubuntu-latest
-    # needed for gh-pages
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,6 +73,9 @@ jobs:
 
   deploy-docs:
     name: "deploy docs"
+    # needed for gh-pages
+    permissions:
+      contents: write
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
