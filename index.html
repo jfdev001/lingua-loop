@@ -112,6 +112,18 @@ conda<span class="w"> </span>activate<span class="w"> </span>lingua-loop
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/jfdev001/lingua-loop.git
 </pre></div>
 </div>
+<p>Using Docker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>https://github.com/jfdev001/lingua-loop.git
+<span class="nb">cd</span><span class="w"> </span>lingua-loop
+docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>lingua-loop<span class="w"> </span>.
+docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">49152</span>:49152<span class="w"> </span>lingua-loop
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The browser auto-open feature does not work inside a container.
+Manually open <a class="reference external" href="http://localhost:49152">http://localhost:49152</a> in your browser.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This package is under active development and updated frequently.</p>
