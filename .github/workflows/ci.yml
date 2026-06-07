@@ -4,10 +4,8 @@ on:
   push:
     branches: ["main"]
 
-  # trigger on change to this workflow
   pull_request:
-    paths:
-      - '.github/workflows/ci.yml'
+    branches: ["main"]
 
   # allow trigger manually from actions
   workflow_dispatch:
