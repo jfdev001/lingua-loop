@@ -1,3 +1,5 @@
+"""SQLAlchemy ORM models for Lingua Loop."""
+
 from datetime import UTC
 from datetime import datetime
 from typing import List
@@ -14,7 +16,7 @@ from lingua_loop.integrations.youtube.types import SupportedLanguageCodes
 
 
 class Base(DeclarativeBase):
-    pass
+    """Base class for all ORM models."""
 
 
 class Transcript(Base):
@@ -40,6 +42,8 @@ class Transcript(Base):
 
 
 class Segment(Base):
+    """Represents a segment within a transcript."""
+
     __tablename__ = "segment"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     start: Mapped[float]

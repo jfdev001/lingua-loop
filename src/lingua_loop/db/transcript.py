@@ -1,3 +1,5 @@
+"""CRUD operations for transcripts."""
+
 from typing import List
 
 from sqlalchemy import select
@@ -19,6 +21,7 @@ from lingua_loop.integrations.youtube.wrapper import (
 async def read_or_create_transcript_with_segments(
     video_id: str, language_code: SupportedLanguageCodes, session: AsyncSession
 ) -> Transcript:
+    """Get or create a transcript with all segments for the given video."""
     transcript = await _read_transcript_with_segments(
         video_id=video_id, session=session
     )
@@ -49,7 +52,7 @@ async def _read_transcript_with_segments(
 async def _create_transcript(
     video_id: str, language_code: SupportedLanguageCodes, session: AsyncSession
 ) -> Transcript:
-
+    """Create a new transcript record with segments from YouTube."""
     transcript_list = list_transcripts(video_id=video_id)
     has_transcript = video_has_transcript_in_language(
         transcript_list=transcript_list, language_code=language_code
@@ -78,6 +81,7 @@ async def _create_transcript(
 
 
 def _get_segments(fetched_transcript: FetchedTranscript) -> List[Segment]:
+    """Convert a FetchedTranscript to a list of Segment ORM objects."""
     segments: List[Segment] = []
     snippets = fetched_transcript.snippets
     for snippet in snippets:

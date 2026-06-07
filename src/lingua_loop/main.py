@@ -1,3 +1,5 @@
+"""FastAPI application factory and entry point."""
+
 from contextlib import asynccontextmanager
 from os import getenv
 from os import remove
@@ -26,11 +28,14 @@ from lingua_loop.integrations.youtube.types import language_code_to_language
 
 
 class State(TypedDict):
+    """Application state type definition."""
+
     async_session_maker: async_sessionmaker[AsyncSession]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Application lifespan context manager, setting up and tearing down resources."""
     async_engine, async_session_maker = get_engine_and_session_maker()
     await create_db_and_tables(async_engine=async_engine)
     yield {"async_session_maker": async_session_maker}
@@ -41,6 +46,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
     app = FastAPI(lifespan=lifespan)
 
     @app.exception_handler(TranscriptNotFoundError)

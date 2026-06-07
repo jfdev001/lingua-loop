@@ -1,8 +1,12 @@
+"""YouTube integration type definitions."""
+
 from enum import Enum
 from typing import Dict
 
 
 class SupportedLanguageCodes(str, Enum):
+    """Supported language codes for YouTube transcripts."""
+
     DUTCH = "nl"
     ENGLISH = "en"
     GERMAN = "de"
@@ -10,6 +14,8 @@ class SupportedLanguageCodes(str, Enum):
 
 
 class SupportedLanguages(str, Enum):
+    """Human-readable language names."""
+
     DUTCH = "Dutch"
     ENGLISH = "English"
     GERMAN = "German"

@@ -30,3 +30,4 @@ uv.lock
 
 # dirs
 tmp
+docs/_build/
